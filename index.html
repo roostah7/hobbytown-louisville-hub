@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1A1A1A">
+<title>HobbyTown Louisville — App Hub</title>
+<style>
+  :root{
+    --red:#E31837; --dark:#1A1A1A; --ink:#1F1F1F; --muted:#6B6B6B;
+    --card:#FFFFFF; --bg:#F4F4F5; --line:#E6E6E6; --shadow:0 2px 14px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); min-height:100vh;
+  }
+  header{
+    background:var(--dark); color:#fff; padding:30px 24px 26px; text-align:center;
+  }
+  .badge{
+    display:inline-grid; place-items:center; width:60px; height:60px; border-radius:14px;
+    background:var(--red); color:#fff; font-size:32px; font-weight:900; font-family:Georgia,serif;
+    box-shadow:0 4px 16px rgba(227,24,55,.4); margin-bottom:14px;
+  }
+  header h1{margin:0; font-size:24px; font-weight:800; letter-spacing:-.3px;}
+  header p{margin:6px 0 0; color:rgba(255,255,255,.65); font-size:14px;}
+  main{max-width:880px; margin:0 auto; padding:30px 20px 60px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px;}
+  .app{
+    display:flex; flex-direction:column; background:var(--card); border:1px solid var(--line);
+    border-radius:16px; padding:22px; text-decoration:none; color:inherit;
+    box-shadow:var(--shadow); transition:transform .14s ease, box-shadow .14s ease, border-color .14s;
+  }
+  .app:hover{transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.12); border-color:var(--red);}
+  .app .ico{font-size:38px; margin-bottom:14px; line-height:1;}
+  .app h2{margin:0 0 6px; font-size:18px; font-weight:800;}
+  .app p{margin:0 0 16px; color:var(--muted); font-size:13.5px; line-height:1.5; flex:1;}
+  .app .open{
+    align-self:flex-start; background:var(--red); color:#fff; font-size:13px; font-weight:700;
+    padding:9px 18px; border-radius:999px;
+  }
+  .app.soon{opacity:.6; cursor:default; pointer-events:none; border-style:dashed;}
+  .app.soon .open{background:var(--muted);}
+  footer{text-align:center; color:var(--muted); font-size:12px; padding:0 20px 40px;}
+  @media (max-width:520px){ .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+  <header>
+    <div class="badge">H</div>
+    <h1>HobbyTown Louisville</h1>
+    <p>Store app hub — pick a tool to get started</p>
+  </header>
+
+  <main>
+    <div class="grid">
+
+      <!-- Daily Ops -->
+      <a class="app" href="https://roostah7.github.io/hobbytown_louisville_ops/">
+        <div class="ico">✅</div>
+        <h2>Daily Ops</h2>
+        <p>Opening, mid-shift &amp; closing checklists, shift notes, break-even targets, and the daily cycle-count rotation.</p>
+        <span class="open">Open →</span>
+      </a>
+
+      <!-- RC Repair -->
+      <a class="app" href="https://roostah7.github.io/hobbytown-repair-app/">
+        <div class="ico">🔧</div>
+        <h2>RC Repair Tracker</h2>
+        <p>Log repair intakes, track jobs through to "ready," and auto-notify customers by email.</p>
+        <span class="open">Open →</span>
+      </a>
+
+      <!-- Placeholder for future apps -->
+      <div class="app soon">
+        <div class="ico">➕</div>
+        <h2>More coming soon</h2>
+        <p>New store tools will show up here as you build them.</p>
+        <span class="open">Coming soon</span>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>HobbyTown Louisville · internal tools · bookmark this page on every store &amp; home computer</footer>
+</body>
+</html>
