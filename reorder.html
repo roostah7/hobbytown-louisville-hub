@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HobbyTown Louisville — Reorder Calculator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #111111; color: #1a1a2e; min-height: 100vh; }
+
+  header { background: linear-gradient(135deg, #cc0000 0%, #a30000 100%); color: white; padding: 24px 32px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); position: relative; }
+  header h1 { font-size: 22px; font-weight: 700; }
+  header p { font-size: 13px; opacity: 0.7; margin-top: 2px; }
+  header .credit { position: absolute; bottom: 8px; right: 16px; font-size: 11px; opacity: 0.6; }
+
+  .page-layout { display: grid; grid-template-columns: 340px 1fr 340px; gap: 24px; max-width: 1900px; margin: 0 auto; padding: 24px; align-items: start; }
+  .main-content { min-width: 0; }
+
+  .sidebar { position: sticky; top: 24px; }
+  .sidebar .card { margin-bottom: 16px; background: #e3f2fd; }
+  .nat-pct { font-size: 14px; font-weight: 700; color: #1565c0; }
+  .nat-pct-label { font-size: 10px; color: #888; }
+  .hot-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #bbdefb; align-items: flex-start; }
+  .hot-item:last-child { border-bottom: none; }
+  .hot-rank { width: 28px; height: 28px; background: #1a1a2e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .hot-rank.gold { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .hot-rank.silver { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+  .hot-rank.bronze { background: linear-gradient(135deg, #d97706, #92400e); }
+  .hot-info { flex: 1; min-width: 0; }
+  .hot-sku { font-weight: 700; font-size: 12px; color: #1a1a2e; }
+  .hot-title { font-size: 11px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .hot-vendor { font-size: 10px; color: #999; margin-top: 2px; }
+  .hot-stats { text-align: right; flex-shrink: 0; }
+  .hot-rate { font-size: 14px; font-weight: 700; color: #2e7d32; }
+  .hot-rate-label { font-size: 10px; color: #888; }
+  .hot-stock { font-size: 11px; color: #666; margin-top: 2px; }
+  .hot-stock.oos { color: #c62828; font-weight: 600; }
+  .sidebar-empty { text-align: center; padding: 24px 12px; color: #999; font-size: 13px; }
+
+  @media (max-width: 1400px) {
+    .page-layout { grid-template-columns: 1fr 340px; }
+    .sidebar-left { display: none; }
+  }
+  @media (max-width: 1100px) {
+    .page-layout { grid-template-columns: 1fr; }
+    .sidebar, .sidebar-left { position: static; display: block; }
+  }
+
+  .card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #1a1a2e; display: flex; align-items: center; gap: 8px; }
+  .card h2 .step { background: #1a1a2e; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+  .card h2 .fire { font-size: 18px; }
+
+  .params-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .param-group label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .param-group input, .param-group select { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+  .param-group input:focus, .param-group select:focus { outline: none; border-color: #1a1a2e; }
+  .param-group .hint { font-size: 11px; color: #999; margin-top: 4px; }
+
+  .upload-zone { border: 2px dashed #ccc; border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .upload-zone:hover, .upload-zone.dragover { border-color: #1a1a2e; background: #f8f9ff; }
+  .upload-zone.loaded { border-color: #27ae60; background: #f0faf4; }
+  .upload-zone p { font-size: 14px; color: #666; }
+  .upload-zone .filename { font-weight: 600; color: #27ae60; margin-top: 8px; }
+  .upload-zone input { display: none; }
+
+  .btn { padding: 12px 28px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: #1a1a2e; color: white; }
+  .btn-primary:hover { background: #16213e; transform: translateY(-1px); }
+  .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+  .btn-success { background: #27ae60; color: white; }
+  .btn-success:hover { background: #219a52; }
+
+  .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+  .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: #1a1a2e; border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .stat .number { font-size: 28px; font-weight: 700; color: white; }
+  .stat .label { color: #aaa; }
+  .stat .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+  .results-table-wrap { overflow-x: auto; max-height: 600px; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: #1a1a2e; color: white; padding: 10px 12px; text-align: left; position: sticky; top: 0; z-index: 1; cursor: pointer; user-select: none; white-space: nowrap; }
+  thead th:hover { background: #16213e; }
+  thead th .sort-arrow { margin-left: 4px; opacity: 0.5; }
+  tbody td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; }
+  tbody tr:hover { background: #f8f9ff; }
+  tbody tr.highlight { background: #fff8e1; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .tag-order { background: #e8f5e9; color: #2e7d32; }
+  .tag-closeout { background: #fce4ec; color: #c62828; }
+  .tag-nodata { background: #fff3e0; color: #e65100; }
+
+  .filter-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-bar input { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 13px; width: 240px; }
+  .filter-bar .filter-chip { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #ddd; background: white; font-size: 12px; cursor: pointer; font-weight: 500; transition: all 0.15s; }
+  .filter-bar .filter-chip.active { border-color: #1a1a2e; background: #1a1a2e; color: white; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgMTEyLjMzIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiAjZmZmOwogICAgICAgIHN0cm9rZS13aWR0aDogMHB4OwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8Zz4KICAgIDxnPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik01OTUuNTgsNDMuNjZ2LS4wN2MuNjgtLjIsMS4xNi0uNjgsMS4xNi0xLjI5LDAtLjU0LS4yNC0uOTktLjU0LTEuMjItLjQxLS4yNC0uODgtLjQxLTEuOTQtLjQxLS45MiwwLTEuNjMuMDctMi4xNC4xN3Y1LjU4aDEuMjl2LTIuMjRoLjYxYy43MSwwLDEuMDUuMjcsMS4xNi44OC4xNy42NS4yNywxLjE2LjQ0LDEuMzZoMS4zOWMtLjE0LS4yLS4yNC0uNTQtLjQxLTEuMzktLjE3LS43NS0uNDgtMS4xNi0xLjAyLTEuMzZaTTU5NC4wNSw0My4yNWgtLjYxdi0xLjZjLjE0LS4wMy4zNy0uMDcuNzEtLjA3LjgyLDAsMS4xOS4zNCwxLjE5Ljg1LDAsLjU4LS41OC44Mi0xLjI5LjgyWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik01OTQuMjksMzcuOTFjLTMuMiwwLTUuNzUsMi40OC01Ljc1LDUuNThzMi41NSw1LjY1LDUuNzUsNS42NSw1LjcxLTIuNDgsNS43MS01LjY1LTIuNDgtNS41OC01LjcxLTUuNThaTTU5NC4zMiw0Ny45NGMtMi41MiwwLTQuMzUtMS45Ny00LjM1LTQuNDZzMS44NC00LjQ2LDQuMzItNC40Niw0LjI5LDIuMDEsNC4yOSw0LjQ5LTEuOCw0LjQyLTQuMjUsNC40MloiLz4KICAgIDwvZz4KICAgIDxnPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xOTEsODMuM2MtMi40My0xLjM1LTIuNzktMi43LTIuNzktNS4zOXYtMjMuMzhjMC0xNC4zLjk5LTE0LjAzLDMuNjktMTUuMiwxLjgtLjksMi43OS0yLjI1LDIuNzktNC4yMywwLTYuMjktMTEuOTYtNi4zOC0xNi4xOS02LjM4LTE3Ljg5LDAtMTcuNTMsNS4wNC0xNy41Myw2Ljc0LDAsMi4zNCwxLjYyLDMuMTUsMy4zMyw0LjE0LDEuMTcuNjMsMi43LDEuMjYsMi43LDExLjA2LDAsMi43OS4xOCwzLjY5LTUuNzUsMy42OWgtNC41OWMtNC4zMiwwLTYuNjUuNjMtNi42NS00LjQxLDAtOCwuNTQtOS4wOCwyLjc5LTEwLjM0LDIuMDctMS4yNiwzLjYtMi4yNSwzLjYtNS4wNCwwLTUuNC0xMC40My01Ljg0LTE0LjIxLTUuODQtNS4wNCwwLTIwLjA1LjcyLTIwLjA1LDcuNjQsMCwxLjgsMS42MiwyLjYxLDIuOTcsMy4zMywzLjMzLDEuOCwzLjY5LS4xOCwzLjY5LDIzLjc0LDAsMTguNzktMS4xNywxOC41Mi00LjQxLDIwLjA1LTEuNTMuNzItMi44OCwxLjg5LTIuODgsMy43OCwwLDYuMTEsMTIuNSw2LjQ3LDE2LjYzLDYuNDdzMTcuNDQtLjM2LDE3LjQ0LTYuNjVjMC01Ljg0LTUuNTctLjktNS41Ny0xMy4yMiwwLTguMDktMS4xNy04LjQ1LDExLjQyLTguNDUsNC41LDAsNS41Ny0uMTgsNS41Nyw0LjY4LDAsMTguMjUtNi42NSwxMC42MS02LjI5LDE3LjUzLDAsNi4wMiwxMS41MSw2LjExLDE1LjQ3LDYuMTEsMTcuNzEsMCwxNy44OS00LjUsMTcuODktNi42NXMtMS4yNi0yLjc5LTMuMDYtMy43OFoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNTk0LjAyLDg4LjM0YzAtMy44Ny0zLjY5LTIuMjUtNC4xNC05LjM1LS45LTEzLjY3LDIuMjUtMzEuOTItMTYuMzctMzEuOTItNS4xMywwLTcuODIsMS44OS05LjYyLDMuNjktMS44LDEuODktMi42MSwzLjc4LTQuMDUsMy43OC0xLjM1LDAtMS44LTEuMjYtMS44LTIuMzQsMC0uNTQuMDktMS4wOC4wOS0xLjYyLDAtMS44LTEuMjYtMy41MS0zLjI0LTMuNTEtLjg1LDAtNS45NiwxLjAxLTExLjEsMi41OS0xLjkxLTIuNTktNy44MS0yLjU5LTEwLjM1LTIuNTktMi45NywwLTEwLjk3LjA5LTEwLjk3LDQuNTksMCwyLjk3LDIuNTIsMy41MSwyLjUyLDUuNzUsMCwuNjMtMy40Miw4LjgxLTYuMTEsOC44MS0xLjk4LDAtNS4zOS03LjAxLTUuMzktOC44MSwwLTIuMDcsMi44OC0yLjM0LDIuODgtNS41NywwLTQuOTUtOS42Mi00Ljc3LTEzLjA0LTQuNzctMTcuNjIsMC0xOC4wNywzLjYtMTguMDcsNS4zOSwwLDMuMzMsNS41NywzLjMzLDUuNTcsNy42NCwwLDEuMjYtMi41Miw1LjkzLTQuMTQsNS45My0yLjI1LDAtNi4zOC04LTYuMzgtOS41MywwLTEuMTcsMS43MS0xLjk4LDEuNzEtNC4wNSwwLTUuMy0xMC44OC01LjM5LTE0LjM5LTUuMzktMi41OSwwLTguOTQuMTgtMTMuMzQsMS43Mi0yLjk5LTEuMjYtNi40MS0xLjk5LTEwLjIzLTEuOTktNC4wMywwLTguMDEuNjgtMTEuNjcsMS45OC40NC0xLjA1LjY3LTIuMy42Ny0zLjY5LDAtOS43MS03LjI4LTE2LjYzLTEwLjc5LTE2LjYzLTEuNzEsMC0yLjQzLjI3LTMuNjkuNjMtMS4zNS4yNy0zLjE1LjYzLTcuMDEuNjNoLTIyLjEyYy0zLjYsMC02LjAyLS4zNi03LjczLS42My0xLjcxLS4zNi0yLjctLjYzLTMuMzMtLjYzLTUuMTMsMC0xMS42LDkuOTgtMTEuNiwxNy42MiwwLDIuNTUsMS4yOSw1LjEsMy41NSw2LjA2LTEuNi43OS0yLjczLDEuOTctMi43MywzLjcyLDAsMy4wNiwyLjg4LDIuNzksMi44OCw2LjgzLDAsMi4xNi0xLjg5LDguMzYtNC41OSw4LjM2LTEuNTMsMC01LjQ4LTYuMjktNS40OC05LjcxLDAtMi4xNiwyLjA3LTIuODgsMi4wNy01LjMsMC01LjEzLTguMDktNS40OC0xMS41MS01LjQ4LTcuMjMsMC0xMS45NC41OC0xNSwxLjQ0LTMuMTktMy4zLTcuNDctNS4xOS0xMi4xLTUuMTktMy45NiwwLTcuMSwxLjM1LTkuNDQsMi43OS0yLjM0LDEuMzUtMy43OCwyLjc5LTQuMjMsMi43OS0uNzIsMC0uNjMtLjk5LS42My0xLjQ0bC41NC0xNy4zNWMuMDktMS45OC4xOC0zLjg3LTIuMjUtMy44Ny03LjQ2LDAtMjQuOTEsNC4wNS0yNC45MSwxMC4wNywwLDUuMTMsNi43NCwyLjc5LDYuNzQsOHY4Ljc3Yy0zLjA2LTYuMDgtOC44Ni05Ljc2LTE1LjMzLTkuNzYtMy45NiwwLTcuMSwxLjM1LTkuNDQsMi43OS0yLjM0LDEuMzUtMy43OCwyLjc5LTQuMjMsMi43OS0uNzIsMC0uNjMtLjk5LS42My0xLjQ0bC41NC0xNy4zNWMuMDktMS45OC4xOC0zLjg3LTIuMjUtMy44Ny03LjQ2LDAtMjQuOTEsNC4wNS0yNC45MSwxMC4wNywwLDUuMTMsNi43NCwyLjc5LDYuNzQsOHYxMC4yNmMtNC02LjM4LTExLjIzLTExLjI1LTIxLjEyLTExLjI1LTE0Ljg0LDAtMjguOTUsOS4wOC0yOC45NSwyNS4xOCwwLDE0LjIxLDExLjMzLDIyLjAzLDI0LjY0LDIyLjAzLDguOTQsMCwxOS4wNy00LjEyLDI0LjY5LTExLjM1LS41LDIuOTktMS4wNiw0LjI1LTEuMDYsNS4wNiwwLDEuNDQsMS40NCwxLjgsMi43LDEuOCwyLjk3LDAsNC40MS0xLjM1LDUuODQtMS4zNXM2Ljc0LDUuODQsMTguMDcsNS44NCwyMC4yMS02LjIsMjQuNDMtMTUuNGMtLjUsNi4wNi0xLjU0LDguMDEtMS41NCw5LjExLDAsMS40NCwxLjQ0LDEuOCwyLjcsMS44LDIuOTcsMCw0LjQxLTEuMzUsNS44NC0xLjM1czYuNzQsNS44NCwxOC4wNyw1Ljg0YzEzLjY3LDAsMjQuMjUtOS4zNSwyNi41Mi0yMi4xNGw4Ljc3LDE4LjM0YzEuMDgsMi4yNSwyLjg4LDUuNjYsMi44OCw4LjE4LDAsMi4wNy0xLjA0LDQuNDEtMy41MSw0LjQxLTMuNjksMC0xLjM1LTkuNTMtOS43MS05LjUzLTQuNTksMC04LDMuNzgtOCw4LjI3LDAsNy40Niw3LjY0LDEwLjc5LDE0LjEyLDEwLjc5LDE0LjY2LDAsMjAuNDEtMTEuNjksMjQuODItMjMuNjVsNS4zLTE0LjY2YzEuMjYtMy41MSwyLjctNy40Niw0LjY4LTEwLjYxLDIuNDYtNC4xNSw2LjI5LTMuNjIsNy44NS01LjczbC0uNDksMTMuNDljLS4wOSwyLjI1LS40NSw3LjY0LTEuMzUsOS41My0xLjgsMy40Mi03LjM3LDEuNTMtNy4zNyw2LjI5LDAsNi45MiwxNi44MSw2Ljc0LDIxLjQsNi43NCwxNi44MSwwLDE4LjUyLTMuOTYsMTguNTItNi43NCwwLTYuMjktOC4yNy0xLjE3LTguMjctMTEuODd2LTI3LjZjMC0uNzItLjM2LTUuNTcsMy4xNS01LjU3LDQuMzksMCw0LjUsOS43MSwxMS4zNSwxMC41NS02LjAzLDQuMjgtMTAuMDcsMTAuODgtMTAuMDcsMTkuNDksMCwxNC4yMSwxMS4zMywyMi4wMywyNC42NCwyMi4wMywxMS4wNSwwLDIzLjkyLTYuMjksMjcuODQtMTYuOTdsNi41MSwxMC41OWMxLjUzLDIuNTIsMy41MSw2LjExLDYuODMsNi4xMSwyLjc5LDAsNC4zMi0yLjcsNS41Ny00Ljc3bDYuNTYtMTEuNDJjLjgxLTEuNDQsMi4wNy00LjA1LDMuOTYtNC4wNSwxLjM1LDAsMi4zNCwxLjk4LDIuOTcsMi45N2w0LjU5LDcuMzdjMS42MiwyLjYxLDUuODQsOS44OSw5LjM1LDkuODksMy45NiwwLDcuOTEtNy43Myw5LjQ0LTEwLjYxbDExLjUxLTIyLjU3Yy4wNi0uMTIuMTMtLjIzLjE5LS4zNCwxLjM3Ljg5LDIuNzQsMiwyLjY0LDUuMzhsLS4zNiwxMy40OWMtLjI3LDguODEtNC40MSw0Ljk1LTQuNDEsOS4yNiwwLDUuMzksOS4xNyw1LjM5LDEyLjc3LDUuMzlzMTUuNjUuMTgsMTUuNjUtNS4zOWMwLTMuNDItMy4wNi0xLjg5LTMuMDYtMTAuNjF2LTYuOTJjMC00LjA1LS41NC0xMC4yNSw1LjIyLTEwLjI1LDguNDUsMCw1LjkzLDE0LjM5LDUuNDgsMjAuNzctLjQ1LDUuODQtMy40Miw0LjMyLTMuNDIsNy41NSwwLDUuMDMsOC42Myw0Ljg2LDExLjg3LDQuODYsMTYuOSwwLDE2LjU0LTMuNzgsMTYuNTQtNS4zOVpNMjE5LjAxLDgyLjY4Yy02LjItLjM2LTcuODItMTQuMjEtOC4xOC0xOS44Ny0uMTgtMi42MSwxLjQ0LTUuNCw0LjQxLTUuNCw2LjExLDAsNy45MSwxNS42NSw3LjkxLDE5LjY5LDAsMi44OC0uNzIsNS43NS00LjE0LDUuNTdaTTI2NC44Niw4NS44MmMtMy42LDAtNC41OS0xLjQ0LTQuNTktMTguODQsMC0zLjA2LjQ1LTYuMjksNC40MS02LjI5LDUuOTMsMCw3LjEsOS42Miw3LjEsMTMuODUsMCw0LjU5LS45OSwxMS4zMy02LjkyLDExLjMzWk0zMTQuMzYsODUuODJjLTMuNiwwLTQuNTktMS40NC00LjU5LTE4Ljg0LDAtMy4wNi40NS02LjI5LDQuNDEtNi4yOSw1LjkzLDAsNy4xLDkuNjIsNy4xLDEzLjg1LDAsNC41OS0uOTksMTEuMzMtNi45MiwxMS4zM1pNMzg4LjQ3LDUxLjI5bC0uMDcsMi4wNWMtMS42My0yLjQ4LTYuNjItMi43OS05LjA5LTIuNzktLjU1LDAtMS4yNC4wMi0yLjAyLjA2LDMuNTktMy4wNiw1LjQ1LTguNjcsOC4zOS04LjY3LDEuMjYsMCwzLjE1LS4wOSwyLjc5LDkuMzVaTTQ0My45OCw4Mi42OGMtNi4yLS4zNi03LjgyLTE0LjIxLTguMTgtMTkuODctLjE4LTIuNjEsMS40NC01LjQsNC40MS01LjQsNi4xMSwwLDcuOTEsMTUuNjUsNy45MSwxOS42OSwwLDIuODgtLjcyLDUuNzUtNC4xNCw1LjU3WiIvPgogICAgPC9nPgogIDwvZz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMDMuOTIsNy4yNGMtLjctLjE4LTEuNDQtLjI3LTIuMTktLjI3aC01MS43MWMtLjU3LS40My0xLjItLjg2LTEuOTItMS4yOS0yLjgyLTEuNjYtNi4xNS0yLjgtOC40NC0zLjQ3QzM3LjM1LDEuNTUsMzEuNDMsMCwyNi4xMSwwLDIyLjQxLDAsMTUuOTUuODgsMTQuMjQsNi43N2MtMS4xNyw0LjAzLDEuNjQsNi43NywyLjg0LDcuOTRsLjA4LjA4Yy4yLjIuNDEuMzkuNi41Ny0uMjMsMi41Mi0yLjY0LDEwLjg1LTQuNjEsMTcuNjQtMi4zMiw3Ljk5LTMuOTYsMTIuNjMtNC44OCwxMy44Mi0uMTUuMDMtLjM1LjA2LS41Mi4wOGwtLjQ0LjA3Yy0zLjU3LjU3LTYuMTIsMi42NC03LDUuNjgtLjc0LDIuNTQtLjg1LDcuNDMsNi42NywxMS42NywyLjU0LDEuNDMsNS43NiwyLjcxLDkuNTgsMy44MiwzLjA0Ljg4LDUuODEsMS40Nyw4LjI4LDEuNzl2MTMuOTRjMCwuNzYuMDksMS41LjI3LDIuMTkuOTcsNC4wMyw0LjYxLDcuMDIsOC45NCw3LjAyaDY3LjY1YzUuMDgsMCw5LjIxLTQuMTMsOS4yMS05LjIxVjE2LjE5YzAtNC4zNC0yLjk5LTcuOTctNy4wMi04Ljk1Wk04NC4yOCwyNS44NGMtLjUyLDEuNzktMS43NywyLjc1LTMuNjMsMy4wOS0yLjc1LjM1LTMuNTctLjE1LTcuMzIsMTIuNzhsLTYuMTMsMjEuMTVjLS43MSwyLjQ0LS43NCwzLjc1LDEuMTEsNS42MSwxLjM3LDEuMzcsMi4zNiwyLjE0LDEuNzgsNC4yMi0uNTcsMS45NS0xLjkxLDUuOTctMTcuOTMsMS4zMy0zLjU4LTEuMDQtMTMuOTYtNC4xNC0xMi4zOS05LjU4LDEuNDktNi4zNiw1LjUsMi4zLDEwLjI5LTE0LjIxLDEuMjctNC4zOS4yNS00LjUxLTMuODItNS42OS0xMS4zOS0zLjMtMTAuNDItMi42Ny0xMi41NCw0LjY1LTMuMjMsMTEuMTQsMy4xMSw4LjEzLDEuNTgsMTMuNDItMS42NSw1LjY5LTEzLjYyLDIuNTgtMTcuNTIsMS40NC0zLjc0LTEuMDgtMTQuOTUtNC42OS0xMy4zNS0xMC4yMi41LTEuNzEsMi4wMi0yLjQxLDMuNTktMi42NiwzLjMzLS41Myw0LjMyLjAyLDkuMjQtMTYuOTgsNi4yNy0yMS42Myw1LjQzLTE5Ljk0LDIuODktMjIuNDQtMS4wMy0xLTIuMjgtMi4xNi0xLjgxLTMuNzksMS44Mi02LjI2LDE1LjU5LTIuOTgsMjAuMTQtMS42NiwzLjQyLjk5LDEyLjczLDQuMTMsMTEuMzIsOS4wMS0uNzMsMi41Mi0yLjM3LDMuMDItNC41NywzLjYxLTIuMzYuNTUtMy4xMywxLjM4LTUuMjMsOC42Mi0xLjMyLDQuNTUuOTYsNC42LDQuODYsNS43M2w0LjE1LDEuMmM1LjM3LDEuNTYsNS40NC43LDYuMTctMS44MywyLjU3LTguODYsMS4zNS05LjgzLjQ2LTEwLjcxLTEuMjktMS4zNC0yLjU0LTIuNS0xLjkyLTQuNjEuNDUtMS41NSwxLjQ0LTYuMTksMTcuNjMtMS41LDMuODIsMS4xMSwxNC42Miw0LjMyLDEyLjk2LDEwLjAyWiIvPgo8L3N2Zz4=" alt="HobbyTown" style="height:48px;object-fit:contain;">
+  <div>
+    <h1>HobbyTown Louisville — Reorder Calculator</h1>
+    <p>Upload your product export, calculate what to reorder, download the list</p>
+  </div>
+  <span class="credit">Created by Bryce Crabb</span>
+</header>
+
+<div class="page-layout">
+
+<!-- Left Sidebar -->
+<div class="sidebar sidebar-left">
+  <div class="card">
+    <h2><span class="fire">&#127942;</span> Your Top National Sellers</h2>
+    <p style="font-size:11px;color:#888;margin-bottom:12px;">Items where you sell the highest % of all HobbyTown national sales (min 12 sold)</p>
+    <div id="natLeadersList">
+      <div class="sidebar-empty">Upload a file and calculate to see your top national sellers</div>
+    </div>
+  </div>
+</div>
+
+<div class="main-content">
+
+  <!-- Step 1: Parameters -->
+  <div class="card">
+    <h2><span class="step">1</span> Set Parameters</h2>
+    <div class="params-grid">
+      <div class="param-group">
+        <label>Sales Data Period (Days)</label>
+        <input type="number" id="salesPeriod" value="365" min="1" max="730">
+        <div class="hint">How many days does "Units Sold" cover? (365 = 1 year)</div>
+      </div>
+      <div class="param-group">
+        <label>Target Stock (Days)</label>
+        <input type="number" id="targetDays" value="14" min="1" max="90">
+        <div class="hint">How many days of stock to maintain</div>
+      </div>
+      <div class="param-group">
+        <label>Min Sell Rate to Reorder</label>
+        <input type="number" id="minRate" value="0" min="0" step="0.01">
+        <div class="hint">Minimum daily sell rate to include (0 = all)</div>
+      </div>
+      <div class="param-group">
+        <label>File Format</label>
+        <select id="fileFormat">
+          <option value="tsv">Tab-separated (.txt)</option>
+          <option value="xlsx">Excel (.xlsx)</option>
+          <option value="csv">Comma-separated (.csv)</option>
+        </select>
+        <div class="hint">Format of your uploaded export file</div>
+      </div>
+    </div>
+
+    <div id="detectedColumns" style="display:none; margin-top:12px; padding:12px; background:#f8f9ff; border-radius:8px; font-size:13px;">
+      <strong>Detected columns:</strong> <span id="colList"></span>
+    </div>
+  </div>
+
+  <!-- Step 2: Upload -->
+  <div class="card">
+    <h2><span class="step">2</span> Upload Product Export</h2>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <p>Drop your file here or click to browse</p>
+      <p style="font-size:12px;color:#aaa;margin-top:8px;">Supports .txt (tab-separated), .csv, and .xlsx</p>
+      <input type="file" id="fileInput" accept=".txt,.csv,.tsv,.xlsx,.xls">
+    </div>
+  </div>
+
+  <!-- Step 3: Calculate -->
+  <div class="card">
+    <h2><span class="step">3</span> Calculate & Export</h2>
+    <div class="actions">
+      <button class="btn btn-primary" id="calcBtn" disabled onclick="calculate()">Calculate Reorder List</button>
+      <button class="btn btn-success" id="exportBtn" style="display:none" onclick="exportExcel()">Download Excel</button>
+      <span id="statusMsg" style="font-size:13px;color:#888;"></span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar" id="statsBar" style="display:none">
+    <div class="stat"><div class="number" id="statTotal">0</div><div class="label">Total SKUs</div></div>
+    <div class="stat"><div class="number" id="statReorder">0</div><div class="label">Need Reorder</div></div>
+    <div class="stat"><div class="number" id="statOOS">0</div><div class="label">Currently OOS</div></div>
+    <div class="stat"><div class="number" id="statCloseout">0</div><div class="label">Closeout (Skipped)</div></div>
+    <div class="stat"><div class="number" id="statDiscontinued">0</div><div class="label">Discontinued (Skipped)</div></div>
+    <div class="stat"><div class="number" id="statNoSales">0</div><div class="label">No Sales Data</div></div>
+  </div>
+
+  <!-- Results -->
+  <div class="card" id="resultsCard" style="display:none">
+    <h2>Reorder Results</h2>
+
+    <div class="filter-bar">
+      <input type="text" id="searchBox" placeholder="Search by SKU..." oninput="renderTable()">
+      <span class="filter-chip active" data-filter="reorder" onclick="setFilter(this)">Needs Reorder</span>
+      <span class="filter-chip" data-filter="stocked" onclick="setFilter(this)">Stocked OK</span>
+      <span class="filter-chip" data-filter="closeout" onclick="setFilter(this)">Closeout</span>
+      <span class="filter-chip" data-filter="discontinued" onclick="setFilter(this)">Discontinued</span>
+      <span class="filter-chip" data-filter="nosales" onclick="setFilter(this)">No Sales</span>
+      <span class="filter-chip" data-filter="all" onclick="setFilter(this)">All</span>
+    </div>
+
+    <div class="results-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('sku')">SKU <span class="sort-arrow">&#9650;</span></th>
+            <th onclick="sortBy('qtyOnHand')">On Hand <span class="sort-arrow">&#9650;</span></th>
+            <th onclick="sortBy('onOrder')">On Order <span class="sort-arrow">&#9650;</span></th>
+            <th onclick="sortBy('onBackorder')">Backorder <span class="sort-arrow">&#9650;</span></th>
+            <th onclick="sortBy('unitsSold')">Units Sold <span class="sort-arrow">&#9650;</span></th>
+            <th onclick="sortBy('daysOOS')">Days OOS <span class="sort-arrow">&#9650;</span></th>
+            <th onclick="sortBy('daysInStock')">Days In Stock <span class="sort-arrow">&#9650;</span></th>
+            <th onclick="sortBy('dailyRate')">Daily Rate <span class="sort-arrow">&#9650;</span></th>
+            <th onclick="sortBy('reorderQty')">Reorder Qty <span class="sort-arrow">&#9650;</span></th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="card">
+    <h2><span class="fire">&#128293;</span> Top 10 Hot Items</h2>
+    <div id="hotItemsList">
+      <div class="sidebar-empty">Upload a file and calculate to see your top sellers by daily sell rate</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let rawData = [];
+let headers = [];
+let colMap = {};
+let results = [];
+let currentFilter = 'reorder';
+let currentSort = { key: 'reorderQty', dir: 'desc' };
+
+// File upload handling
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) { fileInput.files = e.dataTransfer.files; handleFile(e.dataTransfer.files[0]); }
+});
+fileInput.addEventListener('change', (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+  const name = file.name.toLowerCase();
+  const format = document.getElementById('fileFormat').value;
+
+  if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      headers = rows[0].map(h => String(h).trim());
+      rawData = rows.slice(1).filter(r => r.length > 0 && r[0] !== '');
+      detectColumns();
+      fileLoaded(file.name);
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const sep = format === 'csv' ? ',' : '\t';
+      const allRows = text.split('\n')
+        .map(line => line.replace(/\r$/, '').split(sep))
+        .filter(r => r.length > 1 && r[0].trim() !== '');
+      headers = allRows[0].map(h => h.trim());
+      rawData = allRows.slice(1);
+      detectColumns();
+      fileLoaded(file.name);
+    };
+    reader.readAsText(file);
+  }
+}
+
+function fileLoaded(name) {
+  uploadZone.classList.add('loaded');
+  uploadZone.innerHTML = `<p style="color:#27ae60;font-weight:600;">File loaded successfully</p><div class="filename">${name} — ${rawData.length.toLocaleString()} rows</div>`;
+  document.getElementById('calcBtn').disabled = false;
+  document.getElementById('statusMsg').textContent = 'Ready to calculate.';
+}
+
+function detectColumns() {
+  const nameMap = {
+    sku: ['sku'],
+    title: ['title', 'product name', 'description', 'name', 'item name'],
+    stock: ['stock', 'qty on hand', 'quantity on hand', 'on hand'],
+    onOrder: ['on order', 'on_order', 'onorder'],
+    onBackorder: ['on backorder', 'backorder', 'on_backorder'],
+    closeout: ['closeout', 'close out'],
+    discontinued: ['discontinued'],
+    vendor: ['vendor', 'vendor name', 'supplier'],
+    sold: ['past year qty sold', 'past year sales', 'units sold', 'qty sold', 'quantity sold'],
+    daysOOS: ['days out of stock', 'days oos', 'days_out_of_stock'],
+    lastSale: ['last sale', 'last sold', 'last sale date'],
+    natQtySold: ['nat qty sold', 'nat quantity sold', 'national qty sold'],
+    storeCount: ['store count', 'stores', 'number of stores', 'num stores'],
+    recCloseout: ['recommended closeout', 'rec closeout'],
+    pastYearProfit: ['past year profit', 'profit', 'annual profit'],
+    pastYearMargin: ['past year margin', 'margin', 'annual margin'],
+    lastReceived: ['last received', 'last received date', 'last receipt', 'date received']
+  };
+  colMap = {};
+  const lower = headers.map(h => h.toLowerCase());
+  for (const [key, aliases] of Object.entries(nameMap)) {
+    for (const alias of aliases) {
+      const idx = lower.indexOf(alias);
+      if (idx !== -1) { colMap[key] = idx; break; }
+    }
+  }
+  const detected = Object.entries(colMap).map(([k, v]) => `${k} → "${headers[v]}"`).join(', ');
+  document.getElementById('colList').textContent = detected;
+  document.getElementById('detectedColumns').style.display = 'block';
+}
+
+function calculate() {
+  const salesPeriod = parseInt(document.getElementById('salesPeriod').value) || 365;
+  const targetDays = parseInt(document.getElementById('targetDays').value) || 14;
+  const minRate = parseFloat(document.getElementById('minRate').value) || 0;
+
+  const cSKU = colMap.sku ?? 0;
+  const cTitle = colMap.title;
+  const cQty = colMap.stock ?? 1;
+  const cOnOrder = colMap.onOrder ?? 2;
+  const cBackorder = colMap.onBackorder;
+  const cCloseout = colMap.closeout ?? 3;
+  const cDiscontinued = colMap.discontinued;
+  const cVendor = colMap.vendor;
+  const cSold = colMap.sold ?? 4;
+  const cDaysOOS = colMap.daysOOS ?? 5;
+  const cLastSale = colMap.lastSale;
+  const cNatQtySold = colMap.natQtySold;
+  const cStoreCount = colMap.storeCount;
+  const cRecCloseout = colMap.recCloseout;
+  const cPastYearProfit = colMap.pastYearProfit;
+  const cPastYearMargin = colMap.pastYearMargin;
+  const cLastReceived = colMap.lastReceived;
+
+  let totalSKUs = 0, needReorder = 0, oosCount = 0, closeoutCount = 0, discontinuedCount = 0, noSalesCount = 0;
+  results = [];
+
+  for (const row of rawData) {
+    const sku = String(row[cSKU] || '').trim();
+    if (!sku) continue;
+    totalSKUs++;
+
+    const title = cTitle !== undefined ? String(row[cTitle] || '').trim() : '';
+    const vendor = cVendor !== undefined ? String(row[cVendor] || '').trim() : '';
+    const qtyOnHand = parseInt(row[cQty]) || 0;
+    const onOrder = parseInt(row[cOnOrder]) || 0;
+    const onBackorder = cBackorder !== undefined ? (parseInt(row[cBackorder]) || 0) : 0;
+    const closeoutRaw = String(row[cCloseout] || '').trim().toLowerCase();
+    const isCloseout = closeoutRaw === 'true' || closeoutRaw === 'yes' || closeoutRaw === '1';
+    const discontinuedRaw = cDiscontinued !== undefined ? String(row[cDiscontinued] || '').trim().toLowerCase() : '';
+    const isDiscontinued = discontinuedRaw === 'true' || discontinuedRaw === 'yes' || discontinuedRaw === '1';
+    const unitsSold = parseInt(row[cSold]) || 0;
+    const natQtySold = cNatQtySold !== undefined ? (parseInt(row[cNatQtySold]) || 0) : 0;
+    const storeCount = cStoreCount !== undefined ? (parseInt(row[cStoreCount]) || 0) : 0;
+    const recCloseoutRaw = cRecCloseout !== undefined ? String(row[cRecCloseout] || '').trim().toLowerCase() : '';
+    const isRecCloseout = recCloseoutRaw === 'true' || recCloseoutRaw === 'yes' || recCloseoutRaw === '1';
+    const pastYearProfit = cPastYearProfit !== undefined ? (parseFloat(String(row[cPastYearProfit] || '').replace(/[$,]/g, '')) || 0) : 0;
+    const pastYearMargin = cPastYearMargin !== undefined ? (parseFloat(String(row[cPastYearMargin] || '').replace(/[$,%]/g, '')) || 0) : 0;
+    const daysOOS = parseInt(row[cDaysOOS]) || 0;
+    let lastSaleDate = null;
+    if (cLastSale !== undefined && row[cLastSale]) {
+      const raw = String(row[cLastSale]).trim();
+      const parts = raw.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (parts) lastSaleDate = new Date(parseInt(parts[3]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
+    let lastReceivedDate = null;
+    if (cLastReceived !== undefined && row[cLastReceived]) {
+      const raw = String(row[cLastReceived]).trim();
+      const parts = raw.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (parts) lastReceivedDate = new Date(parseInt(parts[3]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
+
+    const daysInStock = Math.max(salesPeriod - daysOOS, 0);
+    let dailyRate = 0;
+    let reorderQty = 0;
+    let status = '';
+
+    if (isDiscontinued) {
+      discontinuedCount++;
+      status = 'discontinued';
+    } else if (isCloseout) {
+      closeoutCount++;
+      status = 'closeout';
+    } else if (unitsSold === 0 || daysInStock === 0) {
+      noSalesCount++;
+      status = 'nosales';
+    } else {
+      dailyRate = unitsSold / daysInStock;
+      const rawNeed = dailyRate * targetDays;
+      reorderQty = rawNeed >= 1 ? Math.ceil(rawNeed) - qtyOnHand - onOrder - onBackorder : 0;
+
+      // Cap reorder to 1 for slow movers: 360+ days OOS and sold exactly 1 or 2
+      if (daysOOS >= 360 && (unitsSold === 1 || unitsSold === 2)) {
+        reorderQty = 1;
+      }
+
+      // Skip reorder if last received date is more than 1 year ago
+      const now = new Date();
+      const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+      const receivedTooOld = lastReceivedDate && lastReceivedDate < oneYearAgo;
+
+      if (receivedTooOld || pastYearProfit < 0 || pastYearMargin < 0) {
+        status = 'stocked';
+        reorderQty = 0;
+      } else if (dailyRate < minRate) {
+        status = 'stocked';
+        reorderQty = 0;
+      } else if (reorderQty > 0) {
+        needReorder++;
+        status = 'reorder';
+      } else {
+        status = 'stocked';
+        reorderQty = 0;
+      }
+    }
+
+    // Fast-seller override: if sold within targetDays of being received, force reorder 1
+    // Only applies to items NOT already flagged for reorder, and NOT discontinued/closeout
+    if (status !== 'discontinued' && status !== 'closeout' && status !== 'reorder' &&
+        qtyOnHand === 0 && onOrder === 0 && onBackorder === 0 &&
+        lastSaleDate && lastReceivedDate && lastReceivedDate <= lastSaleDate) {
+      const daysBetween = Math.round((lastSaleDate - lastReceivedDate) / (1000 * 60 * 60 * 24));
+      if (daysBetween <= targetDays) {
+        reorderQty = 1;
+        needReorder++;
+        status = 'reorder';
+      }
+    }
+
+    if (qtyOnHand === 0 && status !== 'closeout' && status !== 'discontinued') oosCount++;
+
+    const natPct = (natQtySold > 0 && unitsSold > 0) ? (unitsSold / natQtySold) * 100 : 0;
+    results.push({ sku, title, vendor, qtyOnHand, onOrder, onBackorder, unitsSold, natQtySold, natPct, storeCount, isRecCloseout, pastYearProfit, pastYearMargin, daysOOS, daysInStock, dailyRate, reorderQty, status, isCloseout, isDiscontinued, lastSaleDate, lastReceivedDate });
+  }
+
+  document.getElementById('statTotal').textContent = totalSKUs.toLocaleString();
+  document.getElementById('statReorder').textContent = needReorder.toLocaleString();
+  document.getElementById('statOOS').textContent = oosCount.toLocaleString();
+  document.getElementById('statCloseout').textContent = closeoutCount.toLocaleString();
+  document.getElementById('statDiscontinued').textContent = discontinuedCount.toLocaleString();
+  document.getElementById('statNoSales').textContent = noSalesCount.toLocaleString();
+  document.getElementById('statsBar').style.display = 'grid';
+  document.getElementById('resultsCard').style.display = 'block';
+  document.getElementById('exportBtn').style.display = 'inline-block';
+  document.getElementById('statusMsg').textContent = `Done! ${needReorder} SKUs need reorder.`;
+
+  currentSort = { key: 'reorderQty', dir: 'desc' };
+  renderTable();
+  renderHotItems();
+  renderNatLeaders();
+}
+
+function renderNatLeaders() {
+  // Top 10 by % of national sales — min 4 units sold, active items only
+  const eligible = results.filter(r =>
+    r.status !== 'closeout' && r.status !== 'discontinued' &&
+    r.unitsSold >= 1 && r.natQtySold > 0 && r.natPct > 0 && r.natPct < 100 && r.storeCount > 1 &&
+    !r.isRecCloseout && r.pastYearProfit >= 0
+  );
+  const top10 = eligible.sort((a, b) => b.natPct - a.natPct || b.unitsSold - a.unitsSold).slice(0, 10);
+
+  const container = document.getElementById('natLeadersList');
+  if (top10.length === 0) {
+    container.innerHTML = '<div class="sidebar-empty">No national sales data available</div>';
+    return;
+  }
+
+  container.innerHTML = top10.map((item, i) => {
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    return `<div class="hot-item">
+      <div class="hot-rank ${rankClass}">${i + 1}</div>
+      <div class="hot-info">
+        <div class="hot-sku">${item.sku}</div>
+        <div class="hot-title" title="${item.title}">${item.title || '—'}</div>
+      </div>
+      <div class="hot-stats">
+        <div class="nat-pct">${item.natPct.toFixed(1)}%</div>
+        <div class="nat-pct-label">of national</div>
+        <div style="font-size:10px;color:#888;margin-top:2px;">${item.unitsSold} of ${item.natQtySold} sold</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderHotItems() {
+  // Top 10 by daily sell rate — only active items sold in the last 14 days
+  const now = new Date();
+  const cutoff = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+  const eligible = results.filter(r =>
+    r.status !== 'closeout' && r.status !== 'discontinued' && r.status !== 'nosales' &&
+    r.dailyRate > 0 && r.lastSaleDate && r.lastSaleDate >= cutoff
+  );
+  const top10 = eligible.sort((a, b) => b.dailyRate - a.dailyRate).slice(0, 10);
+
+  const container = document.getElementById('hotItemsList');
+  if (top10.length === 0) {
+    container.innerHTML = '<div class="sidebar-empty">No sales data to rank</div>';
+    return;
+  }
+
+  container.innerHTML = top10.map((item, i) => {
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const stockText = item.qtyOnHand === 0 ? '<span class="oos">OUT OF STOCK</span>' : `${item.qtyOnHand} in stock`;
+    return `<div class="hot-item">
+      <div class="hot-rank ${rankClass}">${i + 1}</div>
+      <div class="hot-info">
+        <div class="hot-sku">${item.sku}</div>
+        <div class="hot-title" title="${item.title}">${item.title || '—'}</div>
+        <div class="hot-vendor">${item.vendor || '—'}</div>
+      </div>
+      <div class="hot-stats">
+        <div class="hot-rate">${item.dailyRate.toFixed(2)}</div>
+        <div class="hot-rate-label">units/day</div>
+        <div class="hot-stock ${item.qtyOnHand === 0 ? 'oos' : ''}">${stockText}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(el) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = el.dataset.filter;
+  renderTable();
+}
+
+function sortBy(key) {
+  if (currentSort.key === key) {
+    currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSort = { key, dir: 'desc' };
+  }
+  renderTable();
+}
+
+function renderTable() {
+  const search = document.getElementById('searchBox').value.toLowerCase();
+  let filtered = results;
+
+  if (currentFilter !== 'all') {
+    filtered = filtered.filter(r => r.status === currentFilter);
+  }
+  if (search) {
+    filtered = filtered.filter(r => r.sku.toLowerCase().includes(search));
+  }
+
+  filtered.sort((a, b) => {
+    let va = a[currentSort.key], vb = b[currentSort.key];
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    if (va < vb) return currentSort.dir === 'asc' ? -1 : 1;
+    if (va > vb) return currentSort.dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const tbody = document.getElementById('resultsBody');
+  const cap = 500;
+  const showing = filtered.slice(0, cap);
+
+  tbody.innerHTML = showing.map(r => {
+    let tag = '';
+    if (r.status === 'reorder') tag = '<span class="tag tag-order">REORDER</span>';
+    else if (r.status === 'closeout') tag = '<span class="tag tag-closeout">CLOSEOUT</span>';
+    else if (r.status === 'discontinued') tag = '<span class="tag" style="background:#e0e0e0;color:#424242;">DISCONTINUED</span>';
+    else if (r.status === 'nosales') tag = '<span class="tag tag-nodata">NO DATA</span>';
+    else tag = '<span class="tag" style="background:#e3f2fd;color:#1565c0;">OK</span>';
+
+    return `<tr class="${r.status === 'reorder' ? 'highlight' : ''}">
+      <td><strong>${r.sku}</strong></td>
+      <td>${r.qtyOnHand}</td>
+      <td>${r.onOrder}</td>
+      <td>${r.onBackorder}</td>
+      <td>${r.unitsSold}</td>
+      <td>${r.daysOOS}</td>
+      <td>${r.daysInStock}</td>
+      <td>${r.dailyRate.toFixed(3)}</td>
+      <td><strong>${r.reorderQty > 0 ? r.reorderQty : '—'}</strong></td>
+      <td>${tag}</td>
+    </tr>`;
+  }).join('');
+
+  if (filtered.length > cap) {
+    tbody.innerHTML += `<tr><td colspan="10" style="text-align:center;color:#888;padding:16px;">Showing ${cap} of ${filtered.length.toLocaleString()} results. Use search or export to see all.</td></tr>`;
+  }
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:#888;padding:24px;">No items match this filter.</td></tr>`;
+  }
+}
+
+function exportExcel() {
+  const reorderItems = results.filter(r => r.status === 'reorder' && r.reorderQty > 0)
+    .sort((a, b) => b.reorderQty - a.reorderQty);
+
+  const wsData = [
+    ['SKU', 'Reorder Qty'],
+    ...reorderItems.map(r => [r.sku, r.reorderQty])
+  ];
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = [{ wch: 20 }, { wch: 12 }];
+  XLSX.utils.book_append_sheet(wb, ws, 'Reorder List');
+
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `HobbyTown_Reorder_${today}.xlsx`);
+}
+</script>
+</body>
+</html>
