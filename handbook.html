@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1A1A1A">
+<title>Employee Handbook — HobbyTown Louisville</title>
+<style>
+  :root{
+    --red:#E31837; --dark:#1A1A1A; --ink:#1F1F1F; --muted:#6B6B6B;
+    --card:#FFFFFF; --bg:#F4F4F5; --line:#E6E6E6; --shadow:0 2px 14px rgba(0,0,0,.08);
+    --soft:#FCFCFD; --notebg:#FFF5F6; --noteline:#F3C9CF;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.6; font-size:16px;
+  }
+
+  /* ---- Top bar ---- */
+  .topbar{
+    position:sticky; top:0; z-index:50; background:var(--dark); color:#fff;
+    display:flex; align-items:center; gap:14px; padding:12px 20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.18);
+  }
+  .topbar img{width:34px; height:34px; object-fit:contain;}
+  .topbar .tt{font-weight:800; font-size:15px; letter-spacing:-.2px; line-height:1.2;}
+  .topbar .tt small{display:block; font-weight:500; color:rgba(255,255,255,.6); font-size:11.5px;}
+  .topbar .spacer{flex:1;}
+  .topbar a.back, .topbar button.printbtn{
+    color:#fff; text-decoration:none; font-size:13px; font-weight:700;
+    border:1px solid rgba(255,255,255,.28); padding:8px 14px; border-radius:999px;
+    background:transparent; cursor:pointer; white-space:nowrap;
+  }
+  .topbar a.back:hover, .topbar button.printbtn:hover{background:rgba(255,255,255,.12);}
+  .topbar a.pdf{background:var(--red); border-color:var(--red); color:#fff; text-decoration:none;
+    font-size:13px; font-weight:700; padding:8px 14px; border-radius:999px; white-space:nowrap;}
+  .topbar a.pdf:hover{filter:brightness(1.08);}
+
+  /* ---- Hero ---- */
+  .hero{background:var(--dark); color:#fff; text-align:center; padding:34px 20px 40px;}
+  .hero .kicker{color:var(--red); font-weight:800; letter-spacing:1.5px; font-size:12px; text-transform:uppercase;}
+  .hero h1{margin:8px 0 4px; font-size:30px; font-weight:800; letter-spacing:-.5px;}
+  .hero p{margin:4px 0; color:rgba(255,255,255,.7); font-size:14px;}
+  .hero .meta{margin-top:10px; font-size:12.5px; color:rgba(255,255,255,.5);}
+
+  /* ---- Layout ---- */
+  .wrap{max-width:1100px; margin:0 auto; padding:0 18px; display:grid;
+    grid-template-columns:248px 1fr; gap:30px; align-items:start;}
+  nav.toc{
+    position:sticky; top:74px; align-self:start; background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:16px 14px; box-shadow:var(--shadow); margin-top:26px;
+    max-height:calc(100vh - 96px); overflow:auto;
+  }
+  nav.toc h4{margin:2px 0 10px; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted);}
+  nav.toc a{display:block; color:var(--ink); text-decoration:none; font-size:13.5px; font-weight:600;
+    padding:7px 10px; border-radius:9px; line-height:1.3;}
+  nav.toc a span{color:var(--red); font-weight:800; margin-right:6px;}
+  nav.toc a:hover{background:var(--bg);}
+  nav.toc a.active{background:var(--notebg); color:var(--red);}
+
+  main{padding:26px 0 70px; min-width:0;}
+  .intro{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 24px;
+    box-shadow:var(--shadow); margin-bottom:24px; font-size:14.5px; color:#333;}
+  .intro strong{color:var(--ink);}
+
+  section.sec{background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:26px 30px; box-shadow:var(--shadow); margin-bottom:22px; scroll-margin-top:78px;}
+  section.sec > .secnum{color:var(--red); font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase;}
+  section.sec > h2{margin:4px 0 14px; font-size:23px; font-weight:800; letter-spacing:-.4px; line-height:1.2;}
+  section.sec h3{margin:22px 0 6px; font-size:16.5px; font-weight:800; color:var(--ink);}
+  section.sec h4{margin:16px 0 4px; font-size:14px; font-weight:800; color:#333;}
+  section.sec p{margin:8px 0; font-size:14.5px; color:#2a2a2a;}
+  section.sec ul{margin:8px 0 8px; padding-left:22px;}
+  section.sec li{margin:5px 0; font-size:14.5px; color:#2a2a2a;}
+  section.sec a{color:var(--red);}
+  .lead{font-size:15px !important; color:#333;}
+  .sig{font-style:italic; color:#444; margin-top:6px;}
+
+  .note{background:var(--notebg); border:1px solid var(--noteline); border-left:4px solid var(--red);
+    border-radius:10px; padding:14px 18px; margin:16px 0; font-size:13.8px;}
+  .note h4{margin:0 0 6px; color:var(--red); font-size:13px; text-transform:uppercase; letter-spacing:.5px;}
+  .note p, .note li{font-size:13.8px;}
+
+  .info{background:#F3F7FB; border:1px solid #D8E6F2; border-left:4px solid #3B7DB5;
+    border-radius:10px; padding:14px 18px; margin:16px 0; font-size:13.8px;}
+  .info h4{margin:0 0 6px; color:#2E6494; font-size:13px; text-transform:uppercase; letter-spacing:.5px;}
+  .info p, .info li{font-size:13.8px;}
+
+  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:14px;}
+  th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line);}
+  th{background:var(--soft); font-weight:800; font-size:12.5px; text-transform:uppercase; letter-spacing:.4px; color:#444;}
+  tr:last-child td{border-bottom:none;}
+  td.check{color:var(--muted); white-space:nowrap;}
+
+  .formfield{display:block; margin:10px 0; font-size:14px;}
+  .formfield .lbl{font-weight:700; color:#333; display:block; margin-bottom:4px;}
+  .formfield .line{display:block; border-bottom:1.5px solid #bbb; height:26px;}
+
+  footer{text-align:center; color:var(--muted); font-size:12.5px; padding:14px 20px 50px; line-height:1.7;}
+  .toplink{display:inline-block; margin-top:10px; color:var(--red); text-decoration:none; font-weight:700; font-size:13px;}
+
+  /* mobile TOC toggle */
+  .toctoggle{display:none;}
+  @media (max-width:860px){
+    .wrap{grid-template-columns:1fr; gap:0;}
+    nav.toc{position:static; max-height:none; margin:20px 0 0; order:-1;}
+    .toctoggle{display:block; width:100%; text-align:left; background:var(--card); border:1px solid var(--line);
+      border-radius:12px; padding:13px 16px; font-weight:800; font-size:14px; color:var(--ink);
+      box-shadow:var(--shadow); cursor:pointer; margin-top:20px;}
+    nav.toc.collapsed{display:none;}
+    section.sec{padding:22px 18px;}
+    .topbar .tt small{display:none;}
+  }
+  @media print{
+    .topbar,nav.toc,.toctoggle,.printbtn{display:none !important;}
+    body{background:#fff; font-size:11pt;}
+    section.sec{box-shadow:none; border:none; border-bottom:1px solid #ccc; border-radius:0; page-break-inside:avoid; padding:14px 0;}
+    .hero{padding:18px 0;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <img src="data:image/png;base64,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" alt="HobbyTown">
+    <div class="tt">HobbyTown Louisville<small>Employee Handbook · 2026 Edition</small></div>
+    <div class="spacer"></div>
+    <button class="printbtn" onclick="window.print()">Print</button>
+    <a class="pdf" href="HobbyTown_Louisville_Employee_Handbook_2026.pdf" target="_blank" rel="noopener">Signable PDF ↓</a>
+    <a class="back" href="index.html">← App Hub</a>
+  </div>
+
+  <div class="hero">
+    <div class="kicker">Crabb Holdings LLC · HobbyTown Louisville</div>
+    <h1>Employee Handbook</h1>
+    <p>291 N Hubbards Ln, Suite 163 · Louisville, KY 40207</p>
+    <p class="meta">Effective January 1, 2026 · Version v2026.01</p>
+  </div>
+
+  <div class="wrap">
+    <button class="toctoggle" onclick="document.getElementById('toc').classList.toggle('collapsed')">☰ Contents</button>
+    <nav class="toc" id="toc">
+      <h4>Contents</h4>
+      <a href="#s1"><span>1</span>Welcome</a>
+      <a href="#s2"><span>2</span>General Employment</a>
+      <a href="#s3"><span>3</span>Employment Status &amp; Recordkeeping</a>
+      <a href="#s4"><span>4</span>Working Conditions &amp; Hours</a>
+      <a href="#s5"><span>5</span>Benefits &amp; Leave</a>
+      <a href="#s6"><span>6</span>Employee Conduct</a>
+      <a href="#s7"><span>7</span>Timekeeping &amp; Payroll</a>
+      <a href="#s8"><span>8</span>Daily Shift Duties</a>
+      <a href="#s9"><span>9</span>Job Description: Team Member</a>
+      <a href="#s10"><span>10</span>Governing Law &amp; Savings</a>
+      <a href="#s11"><span>11</span>Acknowledgment</a>
+    </nav>
+
+    <main>
+      <div class="intro">
+        <p style="margin-top:0;"><strong>Dear Team Member,</strong></p>
+        <p>Welcome to HobbyTown Louisville! We're thrilled you've joined our team. We are a local hobby store with passion for toys, games, model kits, RC vehicles, and anything that includes having fun. We are dedicated to caring well for our local community and fostering an environment of inclusion, acceptance, and joy.</p>
+        <p>This handbook is your roadmap to working at HobbyTown. It covers what we expect of you, what you can expect from us, and how we operate day to day. Please read it carefully and keep it for future reference. If anything is unclear, ask your supervisor or me directly. We update this handbook periodically, and the 2026 edition reflects current Kentucky and federal labor laws as of the effective date above.</p>
+        <p>Thanks for being part of the team.</p>
+        <p class="sig"><strong>Bryce Crabb</strong> — Owner / CEO</p>
+      </div>
+
+      <!-- SECTION 1 -->
+      <section class="sec" id="s1">
+        <div class="secnum">Section 1</div>
+        <h2>Welcome</h2>
+
+        <div class="note">
+          <h4>What's new in the 2026 edition</h4>
+          <ul style="margin:0;">
+            <li>New <strong>Pregnancy &amp; Lactation Accommodations</strong> section reflecting the federal Pregnant Workers Fairness Act (PWFA) and the Kentucky Pregnant Workers Act (KPWA).</li>
+            <li>Updated nursing-mother break-time policy reflecting the federal PUMP Act.</li>
+            <li>Updated drug &amp; alcohol policy reflecting Kentucky's medical cannabis law (SB 47).</li>
+            <li>Updated final-pay timing reflecting KRS 337.055 (next payday or 14 days, whichever is later).</li>
+            <li>New <strong>Holidays Observed</strong> and <strong>Daily Shift Duties</strong> sections.</li>
+            <li>Refreshed contact and address information for our store at 291 N Hubbards Ln, Suite 163, Louisville, KY 40207.</li>
+          </ul>
+        </div>
+
+        <h3>1.2 &nbsp;Handbook Disclaimer</h3>
+        <p>The contents of this handbook serve only as guidelines and supersede any prior handbook. Neither this handbook, nor any other policy or practice, creates an employment contract, or an implied or express promise of continued employment with the Company. Employment with Crabb Holdings LLC / HobbyTown Louisville is at-will. This means employees, or Crabb Holdings LLC / HobbyTown Louisville, may terminate the employment relationship at any time, for any lawful reason, with or without cause or advance notice.</p>
+        <p>This handbook may provide a summary of employee health benefits; however, actual coverage is determined by the express terms of the benefit plan documents. If there are any conflicts between this handbook and the plan documents, the plan documents control. The Company reserves the right to amend, interpret, modify, or terminate any of its employee benefits programs without prior notice to the extent allowed by law.</p>
+        <p>The Company also has the right, with or without notice, to change any of the policies in this handbook, or any of its guidelines, policies, practices, working conditions, or benefits at any time. No one is authorized to provide any employee with an employment contract or special arrangement concerning terms or conditions of employment unless the contract or arrangement is in writing and signed by the CEO of the Company and the employee.</p>
+
+        <h3>1.3 &nbsp;Changes in Policy</h3>
+        <p>Change at Crabb Holdings LLC / HobbyTown Louisville is inevitable. We expressly reserve the right to interpret, modify, suspend, cancel, or dispute, with or without notice, all or any part of our policies, procedures, and benefits at any time. Changes will be effective on the dates determined by the Company, and after those dates all superseded policies will be null and void. No individual supervisor or manager has the authority to alter the foregoing. Any employee who is unclear on any policy or procedure should consult a supervisor or the CEO.</p>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section class="sec" id="s2">
+        <div class="secnum">Section 2</div>
+        <h2>General Employment</h2>
+
+        <h3>2.1 &nbsp;At-Will Employment</h3>
+        <p>Employment with Crabb Holdings LLC / HobbyTown Louisville is at-will. This means employees are free to resign at any time, with or without cause, and the Company may terminate the employment relationship at any time, with or without cause or advance notice. As an at-will employee, you are not guaranteed employment for any set period of time. The policies in this handbook are those in effect at the time of publication and may be amended, modified, or terminated at any time, except that the at-will policy itself may be modified only by a signed, written agreement between the CEO and the employee at issue.</p>
+
+        <h3>2.2 &nbsp;Equal Employment Opportunity</h3>
+        <p>Crabb Holdings LLC / HobbyTown Louisville is an Equal Opportunity Employer. Employment opportunities are based on qualifications and the ability to perform the essential functions of a particular job. The Company makes employment decisions without regard to race, color, religion, sex (including sexual orientation, gender identity, and pregnancy, childbirth, or related medical conditions), national origin, age (40 or older), veteran or military status, disability, genetic information, or any other characteristic protected by applicable federal, state, or local law.</p>
+        <p>This policy governs all aspects of employment, including recruitment, hiring, job assignment, promotions, transfers, compensation, discipline, termination, layoff, access to benefits and training, and all other terms and privileges of employment.</p>
+        <div class="info">
+          <h4>Coverage note</h4>
+          <p style="margin:0;">Several federal anti-discrimination statutes (Title VII, ADA, GINA, PWFA) apply only to employers with 15 or more employees, and ADEA applies only at 20 or more. The Kentucky Civil Rights Act (KCRA) applies to private employers with 8 or more employees, and the Kentucky Pregnant Workers Act (KPWA) applies at 15 or more. The Company commits to the standards in this policy as a matter of internal policy regardless of whether each statute technically applies at our current employee count.</p>
+        </div>
+        <p>The Company may provide reasonable accommodations as required by law (including for disabilities, sincerely held religious beliefs, pregnancy and related conditions covered in Section 4.6, and lactation), so long as the accommodation does not pose an undue hardship. If you would like to request an accommodation, contact the CEO.</p>
+        <p>We strongly encourage the reporting of any instances of discrimination or harassment and prohibit retaliation against anyone who makes a good-faith report or participates in an investigation. See Section 6.6 for the complaint procedure, including external reporting options.</p>
+
+        <h3>2.3 &nbsp;Immigration Law Compliance</h3>
+        <p>Crabb Holdings LLC / HobbyTown Louisville is committed to employing only individuals authorized to work in the United States. In compliance with the Immigration Reform and Control Act of 1986, as amended, each new employee must complete the Employment Eligibility Verification Form I-9 and present documents establishing identity and employment eligibility on or before their first day of work. The Company uses the most current edition of Form I-9 issued by USCIS. Former employees who are rehired must also complete a new Form I-9 if their previous I-9 is more than three years old or is no longer retained or valid.</p>
+
+        <h3>2.4 &nbsp;Employee Grievances</h3>
+        <p>We want a harmonious workplace, and we want to know when something isn't working. Raise concerns about working conditions, communication, or interpersonal conflict with your supervisor first. If a concern is not resolved at that level, or if it would be inappropriate to discuss with your supervisor, submit a signed written grievance to the CEO. The Company may hold a meeting with the employee, supervisor, and any other individuals who can help resolve the issue. Discussions will be limited to those involved with resolving it.</p>
+        <p>Complaints involving alleged discrimination or harassment shall be processed under the Anti-Harassment policy in Section 6.6. The Company assures that all employees filing a grievance can do so without fear of retaliation.</p>
+
+        <h3>2.5 &nbsp;Internal Communication</h3>
+        <p>Effective communication is essential. The Company maintains bulletin boards, group chats, and email for sharing important information. All employees are responsible for checking internal communications regularly. To avoid confusion, employees should not post or remove material from the bulletin boards without manager approval.</p>
+
+        <h3>2.6 &nbsp;Outside Employment</h3>
+        <p>Employees may hold outside jobs as long as they continue to meet the performance standards of their position with HobbyTown Louisville. Unless an alternative work schedule has been approved in writing, you remain subject to the Company's scheduling demands, including availability for overtime when necessary. Company property, office space, equipment, materials, trade secrets, and any confidential information may not be used for outside employment.</p>
+
+        <h3>2.7 &nbsp;Anti-Retaliation &amp; Whistleblower Policy</h3>
+        <p>The Company prohibits retaliation against any employee who, in good faith:</p>
+        <ul>
+          <li>Makes or threatens to make a complaint about a suspected violation of law, including discriminatory or unfair employment practices.</li>
+          <li>Reports concerns about accounting, internal accounting controls, or auditing matters.</li>
+          <li>Reports a violation that endangers the health or safety of an employee, customer, or the public.</li>
+          <li>Objects to or refuses to participate in any activity, policy, or practice they reasonably believe is unlawful.</li>
+          <li>Provides information, files, testifies, or participates in an investigation, proceeding, or hearing related to alleged violations of the law.</li>
+        </ul>
+        <p>Retaliation includes, but is not limited to, refusal to hire, failure to promote, demotion, suspension, harassment, denial of training opportunities, termination, or any other adverse action in the terms or conditions of employment. Anyone found to have engaged in retaliation, or in violation of any law or policy, will be subject to discipline up to and including termination. Employees who knowingly make a false report will also be subject to discipline.</p>
+        <p>To report a violation, contact your supervisor or Bryce Crabb directly at <a href="mailto:brycecrabb@gmail.com">brycecrabb@gmail.com</a> or (501) 628-7650.</p>
+
+        <h3>2.8 &nbsp;Background Checks</h3>
+        <p>Where permitted by law, the Company may conduct background checks on applicants and employees, which may include criminal-history checks, reference checks, and verification of credentials. Any background check performed by an outside consumer reporting agency is conducted in accordance with the Fair Credit Reporting Act (FCRA), including providing required disclosures, obtaining the applicant's or employee's written authorization in advance, and following the FCRA's adverse-action procedures if any decision is based in whole or in part on information in the report. The Company evaluates criminal-history information on a case-by-case basis, considering the nature and gravity of the offense, the time elapsed since the offense, and its relevance to the position sought.</p>
+      </section>
+
+      <!-- SECTION 3 -->
+      <section class="sec" id="s3">
+        <div class="secnum">Section 3</div>
+        <h2>Employment Status &amp; Recordkeeping</h2>
+
+        <h3>3.1 &nbsp;Employment Classifications</h3>
+        <p>For purposes of salary administration and eligibility for overtime and benefits, employees are classified as either exempt or non-exempt under the Fair Labor Standards Act (FLSA) and Kentucky law. Non-exempt employees are entitled to overtime pay in accordance with federal and state law (see Section 7.6). Exempt employees are paid a fixed salary that meets the applicable salary threshold and perform duties that satisfy the executive, administrative, professional, or other recognized exemption tests. As of the effective date of this handbook, the federal salary threshold for the executive, administrative, and professional exemptions is $684 per week ($35,568 annually); Kentucky follows the federal threshold.</p>
+        <p>In addition to your exempt or non-exempt designation, you also belong to one of the following categories:</p>
+        <ul>
+          <li><strong>Full-time:</strong> Regularly scheduled to work 30 hours or more per week. Generally eligible for Company benefits, subject to plan terms.</li>
+          <li><strong>Part-time:</strong> Regularly scheduled to work fewer than 30 hours per week. May be eligible for some benefits, subject to plan terms.</li>
+          <li><strong>Temporary/Seasonal:</strong> Hired for a limited time or specific project (e.g., holiday season). Generally not entitled to Company benefits beyond statutory benefits required by law.</li>
+        </ul>
+        <p>If your position or responsibilities change, the CEO will inform you of any change in your classification or exempt status.</p>
+
+        <h3>3.2 &nbsp;Personnel Data Changes</h3>
+        <p>It is your responsibility to promptly notify your supervisor or the CEO of any changes to your personnel data. Such changes can affect your eligibility for benefits, premium amounts, and your receipt of important Company information. Please notify us as soon as possible if any of the following changes: legal name; mailing address; telephone number(s); beneficiary designations; tax-form withholdings; emergency contact(s); training certificates or professional licenses.</p>
+
+        <h3>3.3 &nbsp;Expense Reimbursement</h3>
+        <p>The Company reimburses employees for necessary, reasonable, and pre-approved expenses incurred in the course of doing their jobs. Get advance approval from the CEO before incurring an expense. Reimbursable items may include mileage, ground or air transportation, lodging, business meals, and other expenses required by law. Submit expense reports to the CEO with receipts or other documentation. Make a reasonable effort to limit business expenses to economical options.</p>
+
+        <h3>3.4 &nbsp;Termination of Employment</h3>
+        <p>Termination of employment is an inevitable part of any organization. The following procedures apply.</p>
+        <h4>Notice of Voluntary Separation</h4>
+        <p>Employees who intend to leave the Company are asked to provide at least two weeks' written notice. This allows the Company time to adjust without placing an undue burden on coworkers.</p>
+        <h4>Return of Company Property</h4>
+        <p>On or before your last day, return all keys, files, records, uniforms, and any other Company property in your possession.</p>
+        <h4>Final Pay</h4>
+        <p>Under Kentucky law (KRS 337.055), the Company will pay your final wages no later than the next regular payday or 14 days after the date of separation, whichever is later, regardless of whether the separation was voluntary or involuntary. Final pay includes all earned wages through your last day worked, plus any earned commissions or bonuses payable under the Company's established plans or policies. Accrued PTO is paid out in accordance with Section 5.2.</p>
+        <h4>Benefits Upon Termination</h4>
+        <p>All accrued and vested benefits that are due and payable at termination will be paid in accordance with applicable federal, state, and local laws. Federal COBRA continuation coverage applies only to employers with 20 or more employees and therefore does not apply to the Company at our current size. Kentucky's mini-continuation statute (KRS 304.18-110) may permit continuation of fully insured group health coverage for up to 18 months at the former employee's expense. The Company will provide you with the carrier's continuation paperwork and contact information at separation; specific terms, deadlines, and rates are set by the carrier and the plan documents.</p>
+
+        <h3>3.5 &nbsp;Minor Employment &amp; Child Labor (Kentucky)</h3>
+        <p>The Company complies with all federal and Kentucky child-labor laws, including the Fair Labor Standards Act (FLSA) and KRS 339. Employees under age 18 are subject to additional restrictions on hours, scheduling, and the types of work they may perform. The Company will not knowingly employ anyone under age 16. For employees ages 16 and 17, the following limits apply:</p>
+        <h4>During school weeks</h4>
+        <ul>
+          <li>No more than 6 hours per school day; no more than 8 hours on a non-school day.</li>
+          <li>No more than 30 hours per school week; no more than 40 hours per non-school week.</li>
+          <li>No work between 10:30 PM and 6:00 AM before a school day. With written parental and school permission, work may extend until 1:00 AM on a non-school night.</li>
+        </ul>
+        <h4>During non-school weeks (summer and breaks)</h4>
+        <ul>
+          <li>Up to 8 hours per day and 40 hours per week.</li>
+          <li>No work between 1:00 AM and 6:00 AM.</li>
+        </ul>
+        <h4>Hazardous-occupation restrictions</h4>
+        <p>Employees under 18 are prohibited from performing hazardous occupations as defined by KRS 339.230 and 29 CFR Part 570, including (without limitation) operating power-driven hoisting or paper-product machinery, working from heights that require fall protection, and using certain power tools. At HobbyTown Louisville, minors may not operate the box compactor (if any), use power saws or grinders, or work alone after dark.</p>
+        <p>Before a minor employee may begin work, the Company requires proof of age and any working papers or school documentation required by Kentucky law. Schedules for minor employees must be reviewed and approved by the Manager. Speak with the CEO with any questions about hours, duties, or breaks for minor employees.</p>
+      </section>
+
+      <!-- SECTION 4 -->
+      <section class="sec" id="s4">
+        <div class="secnum">Section 4</div>
+        <h2>Working Conditions &amp; Hours</h2>
+
+        <h3>4.1 &nbsp;Store Hours</h3>
+        <p>HobbyTown Louisville is open for business during the following hours, excluding observed holidays:</p>
+        <table>
+          <thead><tr><th>Day</th><th>Hours</th></tr></thead>
+          <tbody>
+            <tr><td>Monday</td><td>11:00 AM – 7:00 PM</td></tr>
+            <tr><td>Tuesday</td><td>11:00 AM – 7:00 PM</td></tr>
+            <tr><td>Wednesday</td><td>11:00 AM – 7:00 PM</td></tr>
+            <tr><td>Thursday</td><td>11:00 AM – 7:00 PM</td></tr>
+            <tr><td>Friday</td><td>11:00 AM – 7:00 PM</td></tr>
+            <tr><td>Saturday</td><td>11:00 AM – 7:00 PM</td></tr>
+            <tr><td>Sunday</td><td>11:00 AM – 7:00 PM</td></tr>
+          </tbody>
+        </table>
+        <p>Supervisors will advise you of your scheduled shift, including starting and ending times. Business needs may require variation in shift times and total scheduled hours.</p>
+
+        <h3>4.2 &nbsp;Emergency Closing</h3>
+        <p>Severe weather, fires, power failures, and similar emergencies can disrupt operations. The decision to close or delay regular operations rests with the CEO. When a decision is made, you will be notified directly. In a declared state of emergency that prohibits travel, do not report to work.</p>
+        <p>Pay during a closure:</p>
+        <ul>
+          <li>Exempt employees who have worked any part of the workweek will receive their full salary.</li>
+          <li>Non-exempt employees are paid only for hours actually worked, unless they elect to use available paid leave (e.g., PTO) for the missed work hours, or unless state or local law requires otherwise.</li>
+          <li>If a non-exempt employee is already working when the decision to close is made, they are paid for all hours actually worked plus any reporting-time pay required by applicable law.</li>
+        </ul>
+
+        <h3>4.3 &nbsp;Workplace Safety</h3>
+        <p>We are committed to providing a clean, safe, and healthful work environment. The Company and all employees must comply with all occupational safety and health standards established by OSHA and Kentucky OSH (KOSHA), as well as state and local regulations. Obey safety rules and exercise common sense in all work activities.</p>
+        <p>Report any unsafe conditions to your supervisor immediately, without fear of reprisal. Report any work-related injury, no matter how minor, to your supervisor as soon as possible so we can document it and provide care. If reporting to your supervisor is not appropriate, contact Bryce Crabb directly at <a href="mailto:brycecrabb@gmail.com">brycecrabb@gmail.com</a> or (501) 628-7650.</p>
+        <p>Employees who violate safety standards or fail to report unsafe situations may be subject to discipline up to and including termination. Retaliation against anyone who reports unsafe conditions or work-related injuries is strictly prohibited.</p>
+
+        <h3>4.4 &nbsp;Security, Opening &amp; Closing</h3>
+        <p>All regular employees may be issued a key to the store. You are responsible for the safekeeping of any key issued to you. Report lost or stolen keys to your supervisor immediately. All keys must be returned upon separation or upon request.</p>
+        <p>Detailed opening, midday, and closing duties are listed in Section 8 (Daily Shift Duties). Employees are not permitted on company property after hours without prior written authorization from the CEO.</p>
+
+        <h3>4.5 &nbsp;Meal &amp; Break Periods</h3>
+        <p>The Company complies with Kentucky's meal and rest period requirements. For non-exempt employees:</p>
+        <ul>
+          <li><strong>Meal period:</strong> A reasonable meal period scheduled as close as possible to the middle of the shift, in accordance with KRS 337.355. The Company will not require an employee to take a meal period sooner than 3 hours, or later than 5 hours, after the start of the shift. Meal periods of 30 minutes or more are unpaid; bona fide breaks of less than 30 minutes are paid.</li>
+          <li><strong>Rest period:</strong> A reasonable paid rest period during each 4-hour work period, in accordance with KRS 337.365 and 803 KAR 1:065. The Company generally provides a 10-minute paid rest period in the middle of each 4-hour work period; this is the Company's standard practice and may be adjusted to accommodate operating needs.</li>
+        </ul>
+        <p>Non-exempt employees must be fully relieved of duty during unpaid meal periods and must record the start and end of each meal period using the Company's timekeeping system. If you do not take a meal or rest period to which you are entitled, notify your supervisor immediately. Supervisors schedule meal and rest periods to accommodate operating needs.</p>
+
+        <h3>4.6 &nbsp;Pregnancy &amp; Lactation Accommodations</h3>
+        <p>Under the federal Pregnant Workers Fairness Act (PWFA) and the Kentucky Pregnant Workers Act (KPWA), the Company will provide reasonable accommodations to qualified employees and applicants with known limitations related to pregnancy, childbirth, or related medical conditions, unless the accommodation would impose an undue hardship. Examples of accommodations may include:</p>
+        <ul>
+          <li>More frequent or longer breaks (including for water, food, restroom, or rest).</li>
+          <li>Modified work schedules or job restructuring.</li>
+          <li>A temporary transfer to a less strenuous or less hazardous position, or light duty.</li>
+          <li>Acquisition or modification of equipment, including appropriate seating.</li>
+          <li>Time off to attend appointments or to recover from childbirth or a related condition.</li>
+          <li>A private space (other than a bathroom) for expressing breast milk.</li>
+        </ul>
+        <p>If you need an accommodation, notify your supervisor or the CEO. We will engage in a timely, good-faith, interactive process to identify an effective accommodation. The Company will not require you to take leave if another reasonable accommodation will allow you to continue working, and we will not retaliate against you for requesting an accommodation.</p>
+        <h4>Lactation breaks (PUMP Act)</h4>
+        <p>Under the federal PUMP for Nursing Mothers Act, the Company provides reasonable break time and a private space (other than a bathroom) shielded from view and free from intrusion for nursing employees to express breast milk for up to one year following the birth of the employee's child. Frequency, duration, and timing of pumping breaks will vary based on each employee's individual needs.</p>
+        <p>When an employee uses break time to express breast milk and the break overlaps with a paid rest break, that time is paid. If an employee takes additional pumping time outside of paid breaks, that time is unpaid unless the employee is not completely relieved of duty.</p>
+        <div class="info">
+          <h4>How to request an accommodation</h4>
+          <p style="margin:0;">Talk to your supervisor or contact the CEO directly. You do not need a doctor's note to start the conversation. We may ask for documentation only when reasonable under the circumstances. Requests are kept confidential to the extent possible.</p>
+        </div>
+      </section>
+
+      <!-- SECTION 5 -->
+      <section class="sec" id="s5">
+        <div class="secnum">Section 5</div>
+        <h2>Employee Benefits &amp; Leave</h2>
+
+        <h3>5.1 &nbsp;Holidays Observed</h3>
+        <p>HobbyTown Louisville is closed on the following days each year:</p>
+        <table>
+          <thead><tr><th>Holiday</th><th>Date Observed</th></tr></thead>
+          <tbody>
+            <tr><td>New Year's Day</td><td>January 1</td></tr>
+            <tr><td>Easter Sunday</td><td>Variable</td></tr>
+            <tr><td>Independence Day</td><td>July 4</td></tr>
+            <tr><td>Thanksgiving Day</td><td>Fourth Thursday of November</td></tr>
+            <tr><td>Christmas Day</td><td>December 25</td></tr>
+          </tbody>
+        </table>
+        <p>Part-time, temporary, and seasonal employees are not paid for unworked holidays. Schedule adjustments around holidays will be communicated by your supervisor in advance.</p>
+        <h4>Premium-pay days (store open)</h4>
+        <p>On the days listed below, the store is open and all hours actually worked are paid at 1.5× the employee's regular hourly rate. Premium pay applies to hours worked on the day itself; it does not apply to PTO taken in lieu of working or to surrounding scheduled hours. Premium pay is in addition to any overtime owed under federal or Kentucky law for the workweek; an hour is not paid twice.</p>
+        <table>
+          <thead><tr><th>Premium-Pay Day</th><th>Date Observed</th></tr></thead>
+          <tbody>
+            <tr><td>New Year's Eve</td><td>December 31</td></tr>
+            <tr><td>Memorial Day</td><td>Last Monday of May</td></tr>
+            <tr><td>Labor Day</td><td>First Monday of September</td></tr>
+            <tr><td>Black Friday</td><td>Day after Thanksgiving</td></tr>
+          </tbody>
+        </table>
+
+        <h3>5.2 &nbsp;Paid Time Off (PTO)</h3>
+        <p>PTO is an all-purpose time-off bank for vacation, illness, injury, or personal business. PTO is paid at your base rate at the time of the absence and does not include overtime, bonuses, commissions, or shift differentials. Eligibility and accrual:</p>
+        <ul>
+          <li><strong>Eligibility:</strong> Full-time employees who have completed their introductory period (90 days).</li>
+          <li><strong>Annual amount:</strong> 10 PTO days per calendar year (80 hours).</li>
+          <li><strong>Pro-ration:</strong> Employees hired after January 1 receive a pro-rated allotment for their first calendar year.</li>
+          <li><strong>Carryover:</strong> Up to 40 hours (5 days) of unused PTO may be carried over to the following calendar year. PTO above that amount that is unused as of December 31 is forfeited unless carryover is required by law.</li>
+          <li><strong>Payout at separation:</strong> Accrued and unused PTO is not paid out at separation, whether the separation is voluntary or involuntary. Kentucky law does not require employers to pay out accrued PTO at separation, and the Company has elected not to do so.</li>
+        </ul>
+        <p>Request PTO in writing at least 2 weeks in advance whenever possible. For unexpected needs (sudden illness or emergency), notify your direct supervisor as early as possible, and again on each additional day of absence. Work-related injuries or illnesses are covered under Workers' Compensation (Section 5.5) and are not deducted from PTO.</p>
+
+        <h3>5.3 &nbsp;Health Insurance</h3>
+        <p>Eligible full-time employees may elect to participate in the Company's health insurance plan. Coverage details, costs, eligibility waiting periods, and dependent coverage are described in the Summary Plan Description (SPD), which controls in the event of any conflict with this handbook. Contact the CEO for plan documents and current rates.</p>
+
+        <h3>5.4 &nbsp;Employee Discount Program</h3>
+        <p>Employees receive a discount on HobbyTown Louisville products equivalent to the Company's cost plus 10%. The discount is for personal use by the employee only; it may not be used to purchase items on behalf of friends, family, or third parties for resale. Any prohibited use may result in disciplinary action up to and including termination, and the loss of the discount privilege. Special-order items, consigned goods, and certain manufacturer-restricted items may be excluded from the discount; see the CEO with questions.</p>
+
+        <h3>5.5 &nbsp;Workers' Compensation</h3>
+        <p>Employees who are injured on the job are eligible for Kentucky workers' compensation benefits, which cover medical treatment and a portion of lost wages for any injury or illness sustained in the course of employment. Coverage is paid for in full by the Company; no premium is charged to employees and no individual enrollment is required.</p>
+        <p>Report all job-related accidents or illnesses to your supervisor immediately. Your supervisor will contact the CEO to obtain claim forms and provide instructions. Failure to promptly report an injury can affect coverage and benefits.</p>
+
+        <h3>5.6 &nbsp;Military Leave</h3>
+        <p>The Company grants unpaid time off for service, training, and other obligations in the uniformed services in accordance with the Uniformed Services Employment and Reemployment Rights Act (USERRA) and applicable Kentucky law. Provide advance notice to your supervisor unless military necessity prevents it. Health-insurance continuation is available during military leave subject to plan terms and applicable law. Reemployment rights, pay-level restoration, and benefits-service credit are governed by USERRA. Contact the CEO for reinstatement procedures.</p>
+
+        <h3>5.7 &nbsp;Jury Duty</h3>
+        <p>We encourage employees to fulfill their civic responsibility when called to serve as a juror. Provide your supervisor with a copy of your jury summons as soon as possible. Report to work on workdays (or parts of workdays) when you are not required to serve. Jury duty leave is unpaid for non-exempt employees, except as required by Kentucky law; you may use accrued PTO. Exempt employees who miss work because of jury duty receive their full salary for any week in which they perform any work, less any jury fees received, to the extent permitted by law. Kentucky law prohibits retaliation against employees for serving on a jury.</p>
+
+        <h3>5.8 &nbsp;Voting Leave</h3>
+        <p>Whenever possible, employees should vote before or after work hours. Under Kentucky law (KRS 118.035), employees are entitled to a reasonable period (not less than 4 hours) of leave to vote or to apply for an absentee ballot, provided the request is made before the day of the election. The Company may specify the hours during which an employee may take voting leave. Voting leave is unpaid; employees may use accrued PTO.</p>
+
+        <h3>5.9 &nbsp;Election Officer Leave</h3>
+        <p>Employees selected to serve as precinct election officers are granted leave to attend training or to serve as an election officer. The Company may specify the hours during which leave may be taken. The leave is unpaid; employees may use accrued PTO. Provide reasonable advance notice and certification to verify your eligibility.</p>
+
+        <h3>5.10 &nbsp;Emergency Response Leave</h3>
+        <p>Employees who are volunteer firefighters, rescue squad members, EMTs, peace officers, or members of an emergency management agency may be allowed an unpaid leave of absence to respond to an emergency that occurs prior to the start of their shift. Make every effort to notify your supervisor before your shift begins. To verify eligibility, provide certification from the supervisor of the volunteer agency, including the date and time of the emergency response. You may use accrued PTO for this leave.</p>
+
+        <h3>5.11 &nbsp;Adoptive Parent Leave</h3>
+        <p>Under Kentucky law (KRS 337.015), employees who adopt a child under the age of 7 are entitled to a reasonable period of leave to bond with the adopted child, on the same terms as leave provided to a birth parent. Provide written notice as soon as the need for leave is known. If the Company provides paid leave to birth parents for bonding, leave under this section is paid; otherwise, employees may use accrued PTO. The Company will not retaliate against any employee for exercising rights under this law.</p>
+
+        <h3>5.12 &nbsp;Bereavement Leave</h3>
+        <p>Eligible full-time employees may take up to three (3) consecutive workdays of paid bereavement leave following the death of an immediate family member, defined as: spouse, domestic partner, parent, child, sibling, grandparent, grandchild, parent-in-law, sibling-in-law, child-in-law, or any person who shared the employee's household. Up to one (1) workday of paid bereavement leave is available for the death of an extended family member (aunt, uncle, niece, nephew, first cousin).</p>
+        <p>Part-time and seasonal employees may take unpaid bereavement leave on the same terms. Employees may use accrued PTO to extend bereavement leave. Additional unpaid time off may be approved at the CEO's discretion based on the circumstances. Notify your supervisor as soon as possible and, if requested, provide reasonable documentation (e.g., obituary, funeral program).</p>
+      </section>
+
+      <!-- SECTION 6 -->
+      <section class="sec" id="s6">
+        <div class="secnum">Section 6</div>
+        <h2>Employee Conduct</h2>
+
+        <h3>6.1 &nbsp;Standards of Conduct</h3>
+        <p>Our rules and standards of conduct are essential to a productive workplace. The list below is not exhaustive; other forms of misconduct may also result in discipline up to and including termination:</p>
+        <ul>
+          <li>Theft or inappropriate removal or possession of property.</li>
+          <li>Falsification of timekeeping records.</li>
+          <li>Possession, distribution, sale, transfer, manufacture, or use of alcohol or illegal drugs in the workplace (see Section 6.5).</li>
+          <li>Fighting or threatening violence in the workplace.</li>
+          <li>Making maliciously false statements about coworkers.</li>
+          <li>Threatening, intimidating, coercing, or otherwise interfering with the job performance of fellow employees, customers, or vendors.</li>
+          <li>Negligence or improper conduct leading to damage of company-owned or customer-owned property.</li>
+          <li>Violation of safety or health rules.</li>
+          <li>Smoking in the workplace.</li>
+          <li>Harassment of any kind, including sexual or other unlawful harassment (see Section 6.6).</li>
+          <li>Excessive absenteeism or tardiness.</li>
+          <li>Unauthorized use of telephones, computers, or other company-owned equipment on working time.</li>
+          <li>Unauthorized disclosure of business secrets or other confidential or non-public proprietary information. (Wages and other terms and conditions of employment are not considered confidential information.)</li>
+        </ul>
+        <p>Nothing in this policy is intended to restrict an employee's right to discuss, or act together to improve, wages, benefits, and working conditions with coworkers, or in any way restrict employees' rights under the National Labor Relations Act (NLRA).</p>
+
+        <h3>6.2 &nbsp;Disciplinary Action</h3>
+        <p>Discipline is intended to fairly correct behavior or performance issues early. Steps may include verbal warning, written warning, suspension with or without pay, and termination, depending on the severity of the problem and frequency of occurrence. The Company reserves the right to administer discipline at its discretion based on the circumstances. Some violations are serious enough to justify immediate termination without prior steps, including but not limited to workplace violence, harassment, theft of any kind, gross insubordination, vandalism or destruction of company property, presence on company property during non-business hours without authorization, unauthorized use of company equipment or vehicles, or material misrepresentation to a customer, prospective customer, the public, or an employee.</p>
+
+        <h3>6.3 &nbsp;Confidentiality</h3>
+        <p>The Company takes the protection of Confidential Information seriously. Confidential Information includes (but is not limited to) computer processes and codes, customer lists and preferences, customers' personal information, financial data, marketing strategies, proprietary production processes, pricing information, business and marketing plans, vendor information, software, databases, and information concerning the creation, acquisition, or disposition of products and services. It also includes intellectual property such as trade secrets, ideas, discoveries, writings, trademarks, and inventions developed in the course of your employment. Wages and other conditions of employment are not Confidential Information.</p>
+        <p>Do not disclose Confidential Information to any unauthorized individual, during or after your employment. If you receive a request for Confidential Information, refer it to your supervisor.</p>
+        <div class="info">
+          <h4>Defend Trade Secrets Act notice (18 U.S.C. § 1833(b))</h4>
+          <p style="margin:0;">Federal law provides that an individual will not be held criminally or civilly liable under any federal or state trade-secret law for the disclosure of a trade secret that (a) is made in confidence to a federal, state, or local government official, either directly or indirectly, or to an attorney, and is made solely for the purpose of reporting or investigating a suspected violation of law; or (b) is made in a complaint or other document filed in a lawsuit or other proceeding, if filed under seal. An individual who files a lawsuit alleging retaliation for reporting a suspected violation of law may disclose the trade secret to that individual's attorney and use the trade-secret information in the court proceeding, provided the individual files any document containing the trade secret under seal and does not disclose the trade secret except pursuant to court order.</p>
+        </div>
+
+        <h3>6.4 &nbsp;Workplace Violence</h3>
+        <p>The Company strictly prohibits workplace violence, including any act of intimidation, threat, harassment, physical violence, verbal abuse, aggression, or coercion against a coworker, vendor, customer, or visitor. Prohibited actions include:</p>
+        <ul>
+          <li>Physically injuring another person.</li>
+          <li>Threatening to injure another person.</li>
+          <li>Engaging in behavior that subjects another person to emotional distress.</li>
+          <li>Using obscene, abusive, or threatening language or gestures.</li>
+          <li>Bringing any firearm or other weapon into the store, the back room, or any other interior area of company property. Concealed-carry license holders are not exempt from this prohibition while inside the building.</li>
+          <li>Threatening to use or using a weapon while on company premises, on company-related business, or during job-related functions.</li>
+          <li>Intentionally damaging property.</li>
+        </ul>
+        <div class="info">
+          <h4>Firearms in personal vehicles (KRS 237.106)</h4>
+          <p style="margin:0;">Kentucky law permits employees and other persons holding a license or permit to carry a firearm to keep firearms or ammunition in their personal vehicle while parked on the Company's property, provided the firearm is stored out of sight. The Company will not interfere with this right and will not search employee vehicles for firearms. The interior-prohibition above applies only inside the building.</p>
+        </div>
+        <p>Report all threats or acts of violence immediately to your supervisor or the CEO. Reports will be investigated promptly and kept confidential to the maximum extent possible. Retaliation against anyone who makes a good-faith report is strictly prohibited.</p>
+
+        <h3>6.5 &nbsp;Drug &amp; Alcohol Use</h3>
+        <p>The Company is committed to maintaining a workplace free of substance abuse. No employee or contractor may consume, possess, sell, purchase, or be impaired by alcohol or illegal drugs on any property owned or leased by the Company, in any vehicle owned or leased by the Company, or while on Company business. Use of over-the-counter and legally prescribed medications is permitted as long as they are used as prescribed and do not impair the safe performance of your job. If you believe a medication may impair your performance or safety, or if you believe you need a reasonable accommodation, notify your supervisor or the CEO.</p>
+        <h4>Kentucky medical cannabis</h4>
+        <p>Kentucky's Medical Cannabis Program (SB 47) became effective January 1, 2025. Even if you are a registered medical cannabis cardholder under Kentucky law, the Company maintains a drug-free workplace and Kentucky law expressly permits employers to do so. You may not be impaired by, possess, or use cannabis (medical or otherwise) on Company property, in any Company vehicle, or while on Company business. The Company is not required to accommodate the on-duty use of medical cannabis and may take adverse employment action, up to and including termination, based on a positive cannabis test or evidence of impairment, consistent with Kentucky law.</p>
+        <p>Within the limits of federal, state, and local law, the Company reserves the right to require medical examination or clinical testing for the presence of alcohol or drugs (e.g., reasonable suspicion, post-accident, or as required by law). As a condition of employment, employees consent to such testing when requested by the Company. Refusal to submit to a lawfully requested test, tampering with a sample, or attempting to substitute another person's sample is treated as a positive test result and may result in discipline up to and including immediate termination. Test results will be kept confidential and disclosed only to those with a legitimate business need to know.</p>
+
+        <h3>6.6 &nbsp;Anti-Harassment &amp; Anti-Discrimination</h3>
+        <p>The Company is committed to a workplace in which all individuals are treated with respect. We expressly prohibit discrimination and all forms of harassment based on race, color, religion, sex (including sexual orientation, gender identity, and pregnancy, childbirth, and related medical conditions), national origin, age, disability, veteran or military status, genetic information, or any other characteristic protected by federal, state, or local law.</p>
+        <p>Sexual harassment includes unwelcome sexual advances, requests for sexual favors, and other verbal, visual, or physical conduct of a sexual nature when (1) submission is made an explicit or implicit term of employment; (2) submission or rejection is used as a basis for employment decisions; or (3) the conduct unreasonably interferes with work performance or creates an intimidating, hostile, or offensive work environment. Examples include, but are not limited to, unwanted advances, sexual or derogatory jokes, suggestive imagery, offensive electronic messages, and threats of reprisal after a negative response to advances.</p>
+        <h4>Complaint procedure</h4>
+        <p>If you experience or witness harassment or discrimination, report it promptly. You may use any of the channels below. There is no requirement to report internally before going to an external agency, and you may bypass any internal channel at any time.</p>
+        <p><strong>Internal channels</strong></p>
+        <ul>
+          <li>Your immediate supervisor.</li>
+          <li>Bryce Crabb, Owner/CEO, at <a href="mailto:brycecrabb@gmail.com">brycecrabb@gmail.com</a> or (501) 628-7650.</li>
+          <li>HobbyTown home office HR. Contact HobbyTown home office and they will direct you to the HR professional at the corporate level if you do not feel comfortable disclosing a complaint to your immediate supervisor or the owner of HobbyTown Louisville.</li>
+          <li>The Company's outside HR/employment-law contact (name and phone posted in the back office). Use this channel if the CEO is the subject of the complaint or if you would prefer an outside listener.</li>
+        </ul>
+        <p><strong>External agencies (you may file directly at any time)</strong></p>
+        <ul>
+          <li>Kentucky Commission on Human Rights (KCHR): 332 W. Broadway, 7th Floor, Louisville, KY 40202; (502) 595-4024; kchr.ky.gov. KCHR enforces the Kentucky Civil Rights Act, which covers private employers with 8 or more employees.</li>
+          <li>U.S. Equal Employment Opportunity Commission (EEOC): 1-800-669-4000; eeoc.gov. EEOC enforces Title VII, ADA, ADEA, and other federal anti-discrimination statutes that apply to employers above certain size thresholds.</li>
+          <li>U.S. Department of Labor, Wage and Hour Division: for wage/hour or PUMP Act concerns; 1-866-487-9243.</li>
+          <li>Kentucky Labor Cabinet: for state wage, hour, child-labor, and workplace-safety concerns; (502) 564-3070.</li>
+        </ul>
+        <p>Reports will be investigated promptly, thoroughly, and impartially. Confidentiality will be maintained to the maximum extent possible. Anyone found to have engaged in harassment or discrimination is subject to discipline up to and including termination. Retaliation against anyone who makes a good-faith report or assists in an investigation is strictly prohibited and will itself be subject to discipline up to and including termination.</p>
+        <h4>Training</h4>
+        <p>All employees receive harassment-prevention information at hire and complete a refresher at least once per calendar year. Supervisors receive additional training on identifying, preventing, and responding to harassment and discrimination.</p>
+
+        <h3>6.7 &nbsp;Personal Appearance</h3>
+        <p>The Company strives to maintain a professional working environment that promotes efficiency, morale, and a positive image. While at work or representing HobbyTown Louisville, employees are expected to use good judgment regarding personal appearance and hygiene.</p>
+        <p><strong>Standard work uniform:</strong> The HobbyTown polo provided by the Company, worn with clean pants. With manager approval, you may wear other hobby-related apparel that aligns with our store image.</p>
+        <p>Maintain a clean, neat appearance. Avoid stained, wrinkled, frayed, or revealing clothing. Employees who report to work in inappropriate attire may be sent home to change. The Company will reasonably accommodate religious, disability, or other legally protected exceptions to this policy unless doing so would cause undue hardship.</p>
+
+        <h3>6.8 &nbsp;Telephone &amp; Personal Device Usage</h3>
+        <p>Company telephones are intended for business use. Personal calls during business hours should be kept to a minimum. Use of personal cell phones during your shift should be limited to meal and rest breaks, except for genuine emergencies. Excessive personal device use can interfere with customer service and may result in discipline.</p>
+
+        <h3>6.9 &nbsp;Computer, Email &amp; Internet Usage</h3>
+        <p>Computers, email, and internet access are Company resources provided to support your work. Use them with good business judgment. The Company prohibits use of its electronic communications systems (ECS) for harassment, discrimination, illegal activity, viewing or distributing pornography or obscene material, sending or posting confidential information outside the Company, violating copyright or licensing agreements, or attempting to break into others' systems.</p>
+        <p>Computer hardware, software, email, internet connections, and all other ECS provided by the Company are Company property. Employees have no expectation of personal privacy when using Company ECS. Use may be monitored to ensure productivity and compliance with policy and applicable law. Nothing in this policy is intended to restrict employees' rights under the National Labor Relations Act.</p>
+
+        <h3>6.10 &nbsp;Use of Company Property</h3>
+        <p>Company property, including tools, equipment, computers, vehicles, records, and intellectual property, is for business use only. Tools and equipment assigned to you remain Company property and may be reassigned at any time. Office areas should be kept neat and orderly, and all equipment should be well-maintained. Theft, misappropriation, or unauthorized removal of Company property is strictly prohibited. Damage caused by employee negligence may, to the extent permitted by law, be charged to the employee.</p>
+
+        <h3>6.11 &nbsp;Personal Property</h3>
+        <p>Use your discretion when bringing personal property into the workplace. The Company assumes no risk for any loss of or damage to personal property. Do not display personal property that may be viewed as inappropriate or offensive on Company premises.</p>
+
+        <h3>6.12 &nbsp;Smoking</h3>
+        <p>HobbyTown Louisville provides a smoke-free environment for employees, customers, and visitors. Smoking, including the use of e-cigarettes, vaporizers, and similar products, is prohibited throughout the workplace. The Louisville Metro Smoke-Free Air Ordinance also applies. Designated outdoor smoking areas, if any, will be communicated by the CEO.</p>
+
+        <h3>6.13 &nbsp;Company Supplies</h3>
+        <p>Only authorized persons may purchase supplies in the name of the Company. Employees whose regular duties do not include purchasing may not incur expenses on behalf of the Company or bind the Company by any promise or representation without express written approval.</p>
+
+        <h3>6.14 &nbsp;Social Media &amp; Off-Duty Conduct</h3>
+        <p>The Company recognizes that employees may use social media in their personal time. Nothing in this policy is intended to interfere with employees' rights under Section 7 of the National Labor Relations Act, including the right to discuss wages, hours, working conditions, and other terms and conditions of employment with coworkers and others.</p>
+        <p>With that, when posting on social media, employees should:</p>
+        <ul>
+          <li>Not represent themselves as speaking for the Company unless authorized to do so. If a post intersects with our business, make clear that any opinions are personal and not the Company's.</li>
+          <li>Not post the Company's confidential or non-public proprietary information (Section 6.3), customer information, vendor information, security details, or images of the back room, the POS screens, or anything that could compromise store security.</li>
+          <li>Not post discriminatory, harassing, threatening, defamatory, or obscene content about coworkers, customers, vendors, or the Company.</li>
+          <li>Comply with HobbyTown corporate social-media and brand guidelines when posting about HobbyTown products or branded content.</li>
+        </ul>
+        <p>Off-duty conduct that is lawful and does not affect the employee's ability to perform their job is generally outside the Company's purview. Off-duty conduct that materially harms the Company's reputation or relationships, that violates the law in a way relevant to the employee's role, or that creates a workplace safety concern, may be grounds for discipline.</p>
+
+        <h3>6.15 &nbsp;Media Release &amp; Use of Likeness</h3>
+        <p>HobbyTown Louisville actively promotes the store and our team on social media (Facebook, Instagram, TikTok, YouTube, and similar platforms), in print and digital marketing, in email newsletters, on the Company website, in vendor co-marketing, and in HobbyTown corporate publications. As part of those efforts, the Company may photograph, video, audio record, or otherwise capture employees during work hours, at Company events, at vendor events, at trade shows, and in any other setting where the employee is acting on behalf of the Company.</p>
+        <p><strong>Consent.</strong> By accepting and continuing in employment, each employee grants the Company an irrevocable, royalty-free, perpetual, worldwide license to use, reproduce, edit, distribute, publish, and display the employee's name, likeness, image, voice, and biographical information in any Company marketing, training, recruiting, or promotional material, in any medium now known or later developed. This includes social-media posts, in-store and window displays, advertisements, recruitment material, and HobbyTown corporate channels. No additional compensation is owed for these uses, and the license survives the end of employment.</p>
+        <p><strong>Opt-out.</strong> An employee may opt out of being prominently or individually featured by submitting a written request to the CEO. The opt-out applies prospectively only; the Company will make reasonable efforts to avoid prominent use of an opted-out employee's likeness, but cannot guarantee removal of every existing photo or video, and incidental background appearances and group photos may be retained.</p>
+        <p><strong>Off-duty content.</strong> Nothing in this section authorizes the use of an employee's off-duty or personal social-media content without separate permission, and nothing here limits an employee's right to engage in protected concerted activity under the National Labor Relations Act.</p>
+        <div class="note">
+          <h4>Acknowledgment required</h4>
+          <p style="margin:0;">A separate Media Release Acknowledgment is included at Section 11.4. By signing it on or before your first day of work, you confirm your consent to the use of your likeness as described above.</p>
+        </div>
+
+        <h3>6.16 &nbsp;Conflicts of Interest &amp; Vendor Gifts</h3>
+        <h4>Conflicts of interest</h4>
+        <p>Employees must avoid situations where personal interests conflict, or appear to conflict, with the Company's interests. Examples include outside business activities that compete with HobbyTown Louisville, financial interests in our vendors or customers, and using Company time, equipment, or information for personal benefit. Disclose any potential conflict to the CEO in writing as soon as it arises.</p>
+        <h4>Vendor gifts</h4>
+        <p>Gifts of nominal value (under $50) from vendors during the holidays or as part of normal business hospitality are permitted. Gifts above $50, cash, gift cards, tickets, travel, or anything that could reasonably be perceived as influencing a purchasing or merchandising decision must be disclosed to and approved by the CEO before acceptance, or politely declined. Gifts intended for the entire team (e.g., catered food, a tournament trophy, a demo product the team can share) are permitted with manager awareness.</p>
+      </section>
+
+      <!-- SECTION 7 -->
+      <section class="sec" id="s7">
+        <div class="secnum">Section 7</div>
+        <h2>Timekeeping &amp; Payroll</h2>
+
+        <h3>7.1 &nbsp;Attendance &amp; Punctuality</h3>
+        <p>Regular attendance and punctuality are essential. Be in the workplace, ready to work, at your scheduled start time and complete your entire shift, including returning from meal and rest periods on time.</p>
+        <p>Request all planned time off in writing in advance, as outlined in the PTO policy. If you are unexpectedly unable to report for work, directly notify your supervisor as early as possible, preferably before your scheduled start time. A voicemail, text, or email is acceptable only in extreme emergencies, and a follow-up call must be made later that day. If absent for more than one day, contact your supervisor on each day of absence. The Company may request a physician's statement after three consecutive days of absence or for a pattern of absences.</p>
+        <p>Failure to call in for three consecutive days will be treated as a voluntary resignation, subject to review of any extenuating circumstances. Excessive or recurrent absence and tardiness may result in discipline up to and including termination. Some absences are protected by federal, state, or local law; contact the CEO with questions.</p>
+
+        <h3>7.2 &nbsp;Timekeeping</h3>
+        <p>Federal and state law require accurate records of hours worked. Every non-exempt employee is responsible for accurately recording all time worked, including the start and end of each meal period and any departure for non-work reasons. Report any errors to your supervisor immediately.</p>
+        <p>Non-exempt employees are strictly prohibited from working off the clock for any reason, including answering work-related calls, texts, or emails outside of scheduled hours. All time spent working must be logged. Falsifying or tampering with time records, or recording time on another employee's record, may result in discipline up to and including termination.</p>
+
+        <h3>7.3 &nbsp;Clock-In Restrictions</h3>
+        <p>Employees are not permitted to clock in more than 15 minutes before the beginning of their shift without specific permission from the CEO.</p>
+
+        <h3>7.4 &nbsp;Paydays</h3>
+        <p>Employees are paid on a weekly basis. If a regularly scheduled payday falls on a Company-observed holiday, employees will be paid on the day preceding the holiday. Direct deposit is available and encouraged; employees who use direct deposit receive an itemized wage statement each pay period. Final pay at separation is governed by Section 3.4.</p>
+
+        <h3>7.5 &nbsp;Payroll Deductions</h3>
+        <p>The Company makes deductions from employee pay only as permitted by applicable law, including mandatory deductions for income tax withholding, Social Security, and Medicare, and voluntary deductions you have authorized in writing (e.g., health-insurance premiums, retirement contributions). If you believe an improper deduction has been made, raise the issue with the CEO immediately. The Company will investigate and reimburse promptly if an improper deduction occurred.</p>
+
+        <h3>7.6 &nbsp;Overtime</h3>
+        <p>Overtime may be required by business needs. Supervisors will notify employees when overtime is needed. Employees are not permitted to work overtime without prior authorization from their supervisor. Working unauthorized overtime may result in discipline, but the Company will still pay the employee for all hours worked.</p>
+        <p>Non-exempt employees are paid overtime as follows:</p>
+        <ul>
+          <li><strong>Federal (FLSA):</strong> 1.5× the regular rate of pay for all hours worked over 40 in a single workweek.</li>
+          <li><strong>Kentucky seventh-day rule (KRS 337.050):</strong> When this rule applies, 1.5× the regular rate of pay is owed for hours worked on the seventh day, but only if the employee actually works all seven days of the workweek. The statute exempts several categories of employer, including retail establishments employing fewer than ten persons. The Company will determine in any given workweek whether the seventh-day rule applies based on current headcount and the employee's schedule, and will pay overtime accordingly.</li>
+        </ul>
+        <p>Speak with your supervisor or the CEO with any questions about how overtime is calculated for your position or workweek.</p>
+      </section>
+
+      <!-- SECTION 8 -->
+      <section class="sec" id="s8">
+        <div class="secnum">Section 8</div>
+        <h2>Daily Shift Duties</h2>
+        <p class="lead">Below are your day-to-day responsibilities at HobbyTown Louisville. The store's reputation is built on a clean space, well-merchandised product, and helpful staff. These duties make that happen every day.</p>
+        <div class="info">
+          <h4>Aligned to corporate standards</h4>
+          <p style="margin:0;">The shift-duty structure below mirrors the HobbyTown corporate Operations Manual (Workday section), adapted for our Louisville store. For full procedural detail (e.g., SmartWeb receiving, cash-handling forms, inventory counts, customer-experience methodology), see the store's internal Operations &amp; Training Guide, which supplements, but does not replace, the corporate Operations Manual.</p>
+        </div>
+
+        <h3>8.1 &nbsp;Opening Checklist</h3>
+        <p>Opening procedures must be completed every day. The Manager on Duty owns the open and works the manager list; team members work the team list.</p>
+        <p><strong>Arrival:</strong> Manager on Duty arrives 30 minutes before doors open. Team Members arrive 10 minutes before opening (30 minutes during the holiday season).</p>
+        <h4>Manager-only tasks</h4>
+        <ul>
+          <li>Pre-shift: clock in, review yesterday's punches, fix any missed punches.</li>
+          <li>Review yesterday's sales, margin focus, and today's sales target.</li>
+          <li>Check store email and corporate communications.</li>
+          <li>Opening drawers counted ($100 per drawer); coin change verified; counted in front of manager.</li>
+          <li>POS, credit card terminal, receipt printer, and internet all tested.</li>
+          <li>Remind the team of products to highlight, new releases, newly received product, and priorities for the day.</li>
+          <li>Doors unlocked on time; greet every customer within 10 ft / 3 sec.</li>
+        </ul>
+        <h4>Team tasks</h4>
+        <ul>
+          <li>Sidewalk and storefront exterior clean and debris-free.</li>
+          <li>Front signage clean and visible; doors and windows free of fingerprints.</li>
+          <li>Floors, counters, registers, and high-touch surfaces clean.</li>
+          <li>Restrooms fresh and fully supplied (TP, napkins, hand soap).</li>
+          <li>Aisles walked, with every product front-faced and price tags legible (including impulse displays).</li>
+          <li>Endcaps and feature areas merchandised to drive sales and margin.</li>
+          <li>Open-sign light, Gundam sign light, display-case lights, TVs, and music all on.</li>
+        </ul>
+
+        <h3>8.2 &nbsp;Mid-Shift / During the Day</h3>
+        <p>Customers always come first. When you're not actively assisting a customer, work the lists below. The corporate Customer Experience playbook (3-Second Greeting, Discovery Process, L.A.R.A. complaint resolution, professional phone etiquette) governs every customer interaction.</p>
+        <h4>Manager-only tasks</h4>
+        <ul>
+          <li>Coach team members on the greeting standard and customer engagement throughout the shift.</li>
+          <li>Check email and corporate communications at least once mid-shift.</li>
+          <li>Review and resolve any escalated customer complaints.</li>
+          <li>Walk the floor to inspect merchandising standards and reset anything out of compliance.</li>
+          <li>Review the negative in-stock report in SmartWeb and correct any discrepancies.</li>
+        </ul>
+        <h4>Team tasks</h4>
+        <ul>
+          <li>Greet every customer within 10 ft / 3 sec; thank them and invite them back.</li>
+          <li>Ask for phone number and email address for the Hobby+ program during every transaction. They will receive exclusive discounts.</li>
+          <li>Suggestive-sell add-ons (paint, glue, batteries, chargers) on relevant sales.</li>
+          <li>Receive all incoming shipments: verify packing slips, log discrepancies, ensure cost on the invoice matches SmartWeb, label products appropriately, post to new arrivals, and merchandise in the store appropriately.</li>
+          <li>Process special orders and layaways: call customers with outstanding pickups.</li>
+          <li>1:00 PM aisle walk: front-face product, fix crooked or missing price tags, return stray items to their home, organize impulse displays.</li>
+          <li>4:00 PM aisle walk: front-face product, fix crooked or missing price tags, return stray items to their home, organize impulse displays.</li>
+          <li>7:00 PM aisle walk: front-face product, fix crooked or missing price tags, return stray items to their home, organize impulse displays.</li>
+          <li>Wipe down front counter, RC counter, and display cases as needed.</li>
+          <li>Fill any holes on shelves and displays from backstock.</li>
+          <li>Check restrooms mid-shift; top up napkins, TP, and hand soap.</li>
+          <li>Flag inventory holes or low-stock items to a manager for reorder.</li>
+        </ul>
+
+        <h3>8.3 &nbsp;Closing Checklist</h3>
+        <p>Closing procedures must be completed every day. The Manager on Duty owns the close and works the manager list; team members work the team list.</p>
+        <h4>Manager-only tasks</h4>
+        <ul>
+          <li>Continue upselling and add-on selling through close; don't signal closing early.</li>
+          <li>Close registers per the cash-handling policy; count all drawers.</li>
+          <li>Investigate and document any cash variances of $2 or more; recount; contact Bryce if persistent.</li>
+          <li>Prepare and seal the bank deposit for tomorrow's drop.</li>
+          <li>Review sales and profit vs. goals to identify trends.</li>
+          <li>Document key wins, misses, customer feedback, and follow-ups.</li>
+          <li>Confirm all customers have exited; check restrooms and back area.</li>
+          <li>Turn off all store and display lights, TVs, music, and non-essential equipment.</li>
+          <li>Lock all doors before leaving.</li>
+        </ul>
+        <h4>Team tasks</h4>
+        <ul>
+          <li>Maintain full customer engagement until the last customer leaves.</li>
+          <li>Recover aisles; face gondolas, shelves, and endcaps; line up models neatly.</li>
+          <li>Vacuum floors and mop as needed.</li>
+          <li>Clean doors, windows, glass, counters, and high-touch surfaces.</li>
+          <li>Empty all trash and remove from the store.</li>
+          <li>Clean restrooms; restock toilet paper, napkins, and hand soap.</li>
+          <li>Confirm with the manager that the cash count and bank deposit are handled before leaving.</li>
+        </ul>
+        <div class="info">
+          <h4>Cash drawer standards (corporate)</h4>
+          <ul style="margin:0;">
+            <li>One drawer per cashier per shift. Drawers are never shared. No personal money in the drawer.</li>
+            <li>Each drawer opens with $100. Cashier counts in front of a manager; manager confirms total and adequate change.</li>
+            <li>All $50 and $100 bills must be checked for authenticity using approved verification methods, then stored under the cash drawer.</li>
+            <li>Suspected counterfeit bills must not be accepted and must be reported.</li>
+          </ul>
+        </div>
+        <div class="note">
+          <h4>Safety first</h4>
+          <p style="margin:0;">Never make the bank deposit alone after dark if you feel unsafe; call Bryce. The deposit can wait until the next morning if needed.</p>
+        </div>
+      </section>
+
+      <!-- SECTION 9 -->
+      <section class="sec" id="s9">
+        <div class="secnum">Section 9</div>
+        <h2>Job Description: Store Team Member</h2>
+        <div class="info">
+          <h4>About this job description</h4>
+          <p style="margin:0;">This job description is aligned to HobbyTown's corporate "Staff Job Description – Executive Standard" (April 2026), with HobbyTown Louisville-specific additions for reporting relationship, physical requirements, work environment, and ADA-compliant essential functions. It describes the general nature and level of work performed and is not an exhaustive list of all duties, responsibilities, or qualifications. Duties may be added, removed, or changed by the Company at any time, with or without notice.</p>
+        </div>
+
+        <h3>9.1 &nbsp;Role Purpose</h3>
+        <p>The HobbyTown Store Team Member plays a critical role in driving sales, improving margin, and delivering a premium customer experience. The Team Member is responsible for actively engaging customers, helping them find the right solutions, supporting merchandising standards, and contributing to overall store performance and profitability. Team Members are expected to represent the HobbyTown brand with professionalism, energy, and a strong customer-first mindset.</p>
+        <p>At HobbyTown Louisville specifically, you'll work across our core hobby categories (toys, games, radio control, models, and more), process transactions on the SmartSuite POS, maintain a clean and well-merchandised sales floor, and support back-of-house functions like receiving, pricing, and inventory.</p>
+        <p><strong>Position type:</strong> Non-exempt, hourly. Full-time or part-time.<br>
+        <strong>Compensation:</strong> Hourly rate based on experience, plus employee discount (Section 5.4).</p>
+
+        <h3>9.2 &nbsp;Reporting Relationship</h3>
+        <p>Reports to the Store Manager and ultimately to the CEO. Works collaboratively with other Store Team Members and may receive day-to-day direction from the Shift Lead or Manager on Duty.</p>
+
+        <h3>9.3 &nbsp;Essential Duties &amp; Responsibilities</h3>
+        <h4>Customer service &amp; sales</h4>
+        <ul>
+          <li>Greet every customer warmly within 10 feet or 3 seconds of entry (corporate experience standard); build rapport and identify the kind of help they need.</li>
+          <li>Listen to customers and ask thoughtful questions to understand their hobby, skill level, and goals; recommend appropriate products, kits, paints, batteries, motors, and accessories.</li>
+          <li>Demonstrate products on the sales floor (e.g., RC vehicles, drones, model kits) and answer technical questions accurately. Bring difficult questions to a Shift Lead or the Manager.</li>
+          <li>Suggest add-on items (paints, glue, brushes, batteries, chargers, etc.) that complete the sale and set the customer up for success at home.</li>
+          <li>Resolve customer concerns professionally; escalate refunds, returns, exchanges, and disputes to the Manager when they exceed your authority.</li>
+          <li>Process special orders and layaways accurately; follow up with customers on outstanding orders per Section 8.2.</li>
+        </ul>
+        <h4>Cash handling &amp; POS</h4>
+        <ul>
+          <li>Operate the point-of-sale (SmartSuite) system to ring up sales, process credit/debit/cash transactions, returns, exchanges, gift cards, and store credit.</li>
+          <li>Verify pricing on items at checkout and apply discounts and employee discounts correctly.</li>
+          <li>Count your assigned cash drawer at the start and end of each shift; report any discrepancies of more than $2 immediately to the Shift Lead, recount, and contact the CEO if the discrepancy persists.</li>
+          <li>Prepare bank deposits at the end of the day per Section 8.3.</li>
+        </ul>
+        <h4>Store operations &amp; merchandising</h4>
+        <ul>
+          <li>Complete opening, midday, and closing duties as defined in Section 8.</li>
+          <li>Receive incoming shipments: verify packing slips against contents, log discrepancies, price items per Company guidelines, and stock them on the floor.</li>
+          <li>Run price updates and apply price-tag stickers to products when prices change.</li>
+          <li>Maintain front-facing, fully stocked shelves and clean, organized display cases throughout the day. Fill holes from backstock as soon as they appear.</li>
+          <li>Build and maintain attractive product displays (e.g., seasonal endcaps and feature areas).</li>
+          <li>Conduct cycle counts and assist with periodic full inventory.</li>
+          <li>Identify slow-moving or discontinued products and inventory "holes" and report to the Manager.</li>
+          <li>Keep the sales floor, restrooms, counters, and back room clean and presentable.</li>
+        </ul>
+        <h4>Product knowledge &amp; continuous learning</h4>
+        <ul>
+          <li>Develop and maintain working knowledge of our core categories: toys, games, radio control (cars, trucks, boats, planes, drones), model kits (cars, aircraft, ships, armor), rockets (Estes/AeroTech), paints and finishing supplies, and hobby tools.</li>
+          <li>Stay current on new releases, manufacturer promotions, and seasonal trends.</li>
+          <li>Participate in vendor trainings and Company-provided product education.</li>
+          <li>Share product knowledge with teammates so the whole team can serve customers better.</li>
+        </ul>
+        <h4>Safety, security &amp; compliance</h4>
+        <ul>
+          <li>Follow all Company safety, security, and conduct policies in this handbook.</li>
+          <li>Be alert for shoplifting and report suspicious activity to a Shift Lead or Manager. Never physically confront a suspected shoplifter.</li>
+          <li>Use the alarm system, lock procedures, and key handling protocols correctly per Sections 4.4 and 8.</li>
+          <li>Complete required training (e.g., harassment prevention, safety) on time.</li>
+        </ul>
+
+        <h3>9.4 &nbsp;Required Qualifications</h3>
+        <ul>
+          <li>Must be at least 16 years of age (and meet all Kentucky child-labor restrictions for minors).</li>
+          <li>High school diploma or equivalent, or actively enrolled in high school.</li>
+          <li>Authorized to work in the United States; able to complete Form I-9.</li>
+          <li>Reliable, punctual, and able to work a flexible retail schedule, including weekends and extended hours during the holiday season.</li>
+          <li>Strong interpersonal and communication skills; able to interact courteously with a wide range of customers, including beginners and experienced hobbyists.</li>
+          <li>Basic math skills sufficient to handle cash transactions and verify drawer counts.</li>
+          <li>Comfortable with point-of-sale systems and willing to learn SmartSuite.</li>
+          <li>Honest, dependable, and able to handle cash and inventory with integrity.</li>
+          <li>Able to follow Company policies and instructions from the Manager and Shift Leads.</li>
+        </ul>
+
+        <h3>9.5 &nbsp;Preferred Qualifications</h3>
+        <ul>
+          <li>Personal experience or strong interest in one or more of our hobby categories (toys, games, RC, models, rockets, etc.).</li>
+          <li>Prior retail, food-service, or other customer-facing work experience.</li>
+          <li>Prior experience with cash handling or POS systems.</li>
+          <li>Experience building, painting, or repairing models, RC vehicles, or similar.</li>
+          <li>Bilingual (Spanish/English) is a plus.</li>
+        </ul>
+
+        <h3>9.6 &nbsp;Physical Requirements</h3>
+        <p>The physical demands described here are representative of those that must be met by a team member to successfully perform the essential functions of this job. Reasonable accommodations may be made to enable individuals with disabilities to perform the essential functions, in accordance with the Americans with Disabilities Act (ADA) and Kentucky law.</p>
+        <ul>
+          <li>Stand and walk for the majority of an 8-hour shift.</li>
+          <li>Frequently bend, stoop, kneel, reach overhead, and twist to stock and retrieve product.</li>
+          <li>Lift and carry up to 40 pounds regularly (e.g., cases of paint, RC vehicles, model boxes), and occasionally up to 50 pounds with assistance.</li>
+          <li>Climb a step stool or short ladder to access top shelves and stockroom shelving.</li>
+          <li>Use hands and fingers to operate the POS, count cash, demonstrate small parts, and handle fragile merchandise.</li>
+          <li>Vision sufficient to read price tags, packaging, computer screens, and identify small parts.</li>
+          <li>Hearing sufficient to communicate with customers in person and by telephone.</li>
+        </ul>
+
+        <h3>9.7 &nbsp;Work Environment &amp; Schedule</h3>
+        <ul>
+          <li>Indoor retail environment with moderate noise (customer conversation, occasional RC vehicle demonstrations, music).</li>
+          <li>Occasional exposure to dust, small-parts dust, and the smell of paints, glues, and lubricants (typical of a hobby shop).</li>
+          <li>Schedule generally follows store hours (Section 4.1), including weekends and some evenings.</li>
+          <li>Holiday season (October through December) typically requires increased availability and longer shifts.</li>
+          <li>Occasional offsite events such as trade shows, demonstrations, or community events may be available.</li>
+        </ul>
+
+        <h3>9.8 &nbsp;Performance Standards</h3>
+        <p>Team Members are evaluated on, among other things:</p>
+        <ul>
+          <li>Quality of customer service and the ability to engage, advise, and retain customers.</li>
+          <li>Sales productivity and average transaction value.</li>
+          <li>Accuracy of cash handling, POS transactions, and end-of-day reconciliations.</li>
+          <li>Adherence to opening, midday, and closing duties (Section 8) and to all policies in this handbook.</li>
+          <li>Reliability: attendance, punctuality, and the ability to be counted on by teammates.</li>
+          <li>Product knowledge growth and willingness to learn.</li>
+          <li>Cleanliness and merchandising of the store during your shift.</li>
+          <li>Teamwork: supporting coworkers and contributing to a positive workplace.</li>
+        </ul>
+        <p>Performance is reviewed informally on an ongoing basis and formally at least once per year. Pay adjustments and advancement opportunities are based on performance, business needs, and the Company's discretion.</p>
+      </section>
+
+      <!-- SECTION 10 -->
+      <section class="sec" id="s10">
+        <div class="secnum">Section 10</div>
+        <h2>Severability, Governing Law &amp; Savings Clauses</h2>
+
+        <h3>10.1 &nbsp;Severability</h3>
+        <p>If any provision of this handbook is determined by a court or agency of competent jurisdiction to be unlawful, void, or unenforceable, that provision shall be modified to the minimum extent necessary to comply with applicable law, or severed entirely if modification is not possible. The remaining provisions of the handbook shall continue in full force and effect.</p>
+
+        <h3>10.2 &nbsp;Governing Law</h3>
+        <p>This handbook and all employment relationships covered by it are governed by the laws of the Commonwealth of Kentucky and applicable federal law, without regard to conflict-of-laws principles.</p>
+
+        <h3>10.3 &nbsp;NLRA Savings Clause</h3>
+        <p>Nothing in this handbook is intended to interfere with, restrain, or prevent employees from exercising their rights under Section 7 of the National Labor Relations Act, including the right to discuss wages, hours, working conditions, and other terms and conditions of employment with coworkers and others; to form, join, or assist labor organizations; to engage in protected concerted activity; or to refrain from such activity. Any policy that could be read to prohibit such activity should be interpreted not to apply to it.</p>
+
+        <h3>10.4 &nbsp;Not a Contract; Updates</h3>
+        <p>This handbook is not a contract of employment. Nothing in this handbook creates any contractual rights, express or implied, or any guarantee of employment for any specific period of time. Employment with the Company remains at-will at all times. The Company may amend, supplement, or rescind any provision of this handbook at any time, with or without notice, except for the at-will employment policy in Section 2.1, which can only be modified by a written agreement signed by the CEO of the Company and the employee.</p>
+      </section>
+
+      <!-- SECTION 11 -->
+      <section class="sec" id="s11">
+        <div class="secnum">Section 11</div>
+        <h2>Acknowledgment</h2>
+        <div class="note">
+          <h4>How to sign these acknowledgments</h4>
+          <p style="margin:0 0 6px;">You may sign electronically. Open the <a href="HobbyTown_Louisville_Employee_Handbook_2026.pdf" target="_blank" rel="noopener">signable PDF</a> in any PDF reader (Adobe Acrobat, Preview on Mac, most browsers), click into each field, type your information, and save the file. Email the completed PDF to <a href="mailto:brycecrabb@gmail.com">brycecrabb@gmail.com</a> on or before your first day of work, and a copy will be kept in your personnel file. Re-sign annually when the handbook is updated, or whenever an amended policy is distributed.</p>
+        </div>
+        <div class="info">
+          <h4>Consent to electronic signature</h4>
+          <p style="margin:0;">By typing your full name in the signature field of any acknowledgment, you intend to sign that acknowledgment electronically and you agree that your typed signature has the same legal effect as a handwritten signature. You may withdraw consent to electronic signing at any time by notifying the CEO in writing, in which case a paper version of any remaining acknowledgments will be provided. This consent is given under the federal Electronic Signatures in Global and National Commerce Act (E-SIGN) and the Kentucky Uniform Electronic Transactions Act (KRS Chapter 369).</p>
+        </div>
+
+        <h3>11.1 &nbsp;Acknowledgment of Receipt</h3>
+        <p>I acknowledge that I have received a copy of the Crabb Holdings LLC / HobbyTown Louisville Employee Handbook, 2026 Edition, effective January 1, 2026 (Version v2026.01). I understand that I am responsible for reading the handbook and for complying with all policies, procedures, and standards of conduct it contains, and that this handbook supersedes any prior handbook.</p>
+        <p>I understand that the Company reserves the right to interpret, modify, suspend, cancel, or discontinue any policy or benefit described in the handbook at any time, with or without notice, to the extent permitted by law. I agree to ask my supervisor or the CEO if I have any questions about the handbook or its policies.</p>
+        <div class="formfield"><span class="lbl">Employee name (printed):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Employee signature (type your full name):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Date:</span><span class="line"></span></div>
+
+        <h3>11.2 &nbsp;At-Will Employment Acknowledgment</h3>
+        <p>I understand that my employment with the Company is at-will. This means I or the Company may terminate the employment relationship at any time, with or without cause or advance notice, subject only to applicable law. I understand that nothing in this handbook, in any other Company document, or in any oral or written representation by any supervisor, manager, or employee, creates a contract of employment for any specific period of time, or alters the at-will nature of my employment. I understand that the at-will nature of my employment can be changed only by a written agreement signed by the CEO of the Company and me.</p>
+        <div class="formfield"><span class="lbl">Employee name (printed):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Employee signature (type your full name):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Date:</span><span class="line"></span></div>
+
+        <h3>11.3 &nbsp;Anti-Harassment &amp; Anti-Discrimination Policy Acknowledgment</h3>
+        <p>I acknowledge that I have received and read the Company's Equal Employment Opportunity policy (Section 2.2) and the Anti-Harassment &amp; Anti-Discrimination policy (Section 6.6). I understand the conduct that is prohibited and the channels available to me for reporting concerns, including: my supervisor, the CEO, the Company's outside HR/employment-law contact, the Kentucky Commission on Human Rights, the U.S. Equal Employment Opportunity Commission, the U.S. Department of Labor, and the Kentucky Labor Cabinet. I understand that retaliation against anyone who makes a good-faith report or participates in an investigation is prohibited and itself a violation of Company policy.</p>
+        <div class="formfield"><span class="lbl">Employee name (printed):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Employee signature (type your full name):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Date:</span><span class="line"></span></div>
+
+        <h3>11.4 &nbsp;Media Release Acknowledgment</h3>
+        <p>I acknowledge that I have read and understand the Media Release &amp; Use of Likeness policy in Section 6.15. I understand that, by accepting and continuing in employment with the Company, I grant the Company an irrevocable, royalty-free, perpetual, worldwide license to use, reproduce, edit, distribute, publish, and display my name, likeness, image, voice, and biographical information in any Company marketing, training, recruiting, or promotional material, in any medium now known or later developed, including social media, in-store and window displays, advertisements, recruitment material, and HobbyTown corporate channels.</p>
+        <p>I understand that I will receive no additional compensation for these uses, that the license survives the end of my employment, and that I may submit a written opt-out request to the CEO at any time to limit prospective prominent or individual use of my likeness (subject to the limits described in Section 6.15).</p>
+        <div class="formfield"><span class="lbl">Employee name (printed):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Employee signature (type your full name):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Date:</span><span class="line"></span></div>
+
+        <h3>11.5 &nbsp;Separation Property Return Checklist</h3>
+        <p>Complete this checklist on or before the employee's last day of work. Both the employee and the manager initial each item.</p>
+        <table>
+          <thead><tr><th>Item</th><th>Returned?</th><th>Employee initial</th><th>Manager initial</th></tr></thead>
+          <tbody>
+            <tr><td>Store keys</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Alarm code (deactivated)</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>HobbyTown polo / uniform items</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Name badge / employee ID</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Cash drawer / change fund</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Company laptop / tablet / phone</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>SmartSuite / system access revoked</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Email account closed / forwarded</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Customer / vendor files returned</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Physical files / records returned</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Personal items removed from store</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Final time entries reviewed/signed</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+            <tr><td>Forwarding address on file for W-2</td><td class="check">☐ Yes ☐ N/A</td><td>______</td><td>______</td></tr>
+          </tbody>
+        </table>
+        <div class="formfield"><span class="lbl">Employee name (printed):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Employee signature (type your full name):</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Date:</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Manager signature:</span><span class="line"></span></div>
+        <div class="formfield"><span class="lbl">Date:</span><span class="line"></span></div>
+      </section>
+
+      <div style="text-align:center;">
+        <a class="toplink" href="#">↑ Back to top</a>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    HobbyTown Louisville · 291 N Hubbards Ln, Suite 163, Louisville, KY 40207 · Bryce Crabb, CEO<br>
+    brycecrabb@gmail.com · (501) 628-7650 · Handbook v2026.01
+  </footer>
+
+<script>
+  // Highlight the active section in the TOC as you scroll
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function onScroll(){
+    var pos = window.scrollY + 120, idx = 0;
+    for (var i=0;i<secs.length;i++){ if (secs[i] && secs[i].offsetTop <= pos) idx = i; }
+    links.forEach(function(l,i){ l.classList.toggle('active', i===idx); });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  // On mobile, collapse the menu after picking a section
+  links.forEach(function(l){ l.addEventListener('click', function(){
+    if (window.innerWidth <= 860) document.getElementById('toc').classList.add('collapsed');
+  });});
+</script>
+</body>
+</html>
